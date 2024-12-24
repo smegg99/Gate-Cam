@@ -6,3 +6,5 @@
 server/app/server.crt
 server/app/server.key
 server/app/yolov5n.onnx
+server/app/deploy.prototxt
+server/app/mobilenet_iter_73000.caffemodel
