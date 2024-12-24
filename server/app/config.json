@@ -1,0 +1,19 @@
+{
+	"api": {
+		"port": 3001
+	},
+	"cameras": {
+		"cameras": [
+			{
+				"name": "balls",
+				"device": 0,
+				"frame_rate": 30,
+				"frame_width": 640,
+				"frame_height": 480,
+				"brightness": 100,
+				"contrast": 1.5,
+				"quality": 100
+			}
+		]
+	}
+}
