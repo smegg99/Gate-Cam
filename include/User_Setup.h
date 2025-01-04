@@ -10,7 +10,7 @@
 #define TFT_RST              13
 #define TFT_MOSI             23
 #define TFT_SCLK             18
-#define SPI_FREQUENCY        26000000
+#define SPI_FREQUENCY        27000000 // 27 MHz might be unstable
 #define SUPPORT_TRANSACTIONS
 
 #endif

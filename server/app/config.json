@@ -12,8 +12,6 @@
 				"frame_height": 480,
 				"modes": {
 					"jpeg_stream": {
-						"out_frame_width": 640,
-						"out_frame_height": 480,
 						"brightness": 80,
 						"contrast": 1.35,
 						"quality": 100
@@ -22,15 +20,13 @@
 						"out_frame_width": 160,
 						"out_frame_height": 128,
 						"brightness": 80,
-						"contrast": 1.35,
-						"quality": 100
+						"contrast": 1.35
 					},
 					"color_frame": {
 						"out_frame_width": 160,
 						"out_frame_height": 128,
 						"brightness": 80,
-						"contrast": 1.35,
-						"quality": 100
+						"contrast": 1.35
 					}
 				}
 			}

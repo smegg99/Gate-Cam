@@ -68,7 +68,8 @@ func NewCamera(camConfig config.CameraConfig) (*Camera, error) {
 
 	for camMode, mode := range camConfig.Modes {
 		if mode.OutFrameWidth == 0 || mode.OutFrameHeight == 0 {
-			return nil, fmt.Errorf("output frame width and height must be greater than 0")
+			mode.OutFrameHeight = camConfig.FrameHeight
+			mode.OutFrameWidth = camConfig.FrameWidth
 		}
 		outputs[camMode] = CameraModeOutput{
 			config: mode,
@@ -211,6 +212,10 @@ func (cam *Camera) grabFrameRGB565(mat gocv.Mat) ([]byte, error) {
     if err != nil {
         return nil, fmt.Errorf("failed to convert mat to RGB565: %v", err)
     }
+	
+	if len(rgb565Data) != 160*128*2 {
+        return nil, fmt.Errorf("invalid frame size: expected %d, got %d", 160*128*2, len(rgb565Data)) 
+    }
 
     return rgb565Data, nil
 }
@@ -235,82 +240,104 @@ func (cam *Camera) grabFrameJPEG(mat gocv.Mat, modeConfig config.CameraModeConfi
 	return buf.Bytes(), nil
 }
 
+func (cam *Camera) checkAndRecoverCamera() {
+    cam.mu.Lock()
+    defer cam.mu.Unlock()
+
+    if !cam.capture.IsOpened() {
+        fmt.Printf("camera %s disconnected, attempting to reinitialize\n", cam.Name)
+        cam.capture.Close()
+        newCap, err := gocv.OpenVideoCapture(cam.Device)
+        if err != nil {
+            fmt.Printf("failed to reinitialize camera %s: %v\n", cam.Name, err)
+            return
+        }
+        cam.capture = newCap
+    }
+}
+
 func (cam *Camera) grabFrame(mode config.CameraMode) ([]byte, error) {
-	if cam.capture == nil {
-		return nil, fmt.Errorf("camera %s not initialized", cam.Name)
-	}
+    cam.mu.Lock()
+    defer cam.mu.Unlock()
 
-	mat := gocv.NewMat()
-	defer mat.Close()
+    if cam.capture == nil || !cam.capture.IsOpened() {
+        fmt.Printf("camera %s is not initialized or disconnected\n", cam.Name)
+        cam.checkAndRecoverCamera()
+        return nil, nil
+    }
 
-	if ok := cam.capture.Read(&mat); !ok {
-		return nil, fmt.Errorf("cannot read frame from camera %s", cam.Name)
-	}
-	if mat.Empty() {
-		return nil, fmt.Errorf("empty frame from camera %s", cam.Name)
-	}
+    mat := gocv.NewMat()
+    defer mat.Close()
 
-	modeConfig := cam.config.Modes[mode]
-	mat = cam.applyPostProcessing(mat, modeConfig)
+    if !cam.capture.Read(&mat) || mat.Empty() {
+        fmt.Printf("camera %s failed to read frame\n", cam.Name)
+        return nil, nil
+    }
 
-	detections := cam.detectObjects(mat)
-	cam.detectionMu.Lock()
-	cam.detections = detections
-	cam.detectionMu.Unlock()
+    modeConfig := cam.config.Modes[mode]
+    mat = cam.applyPostProcessing(mat, modeConfig)
 
-	cam.drawDetections(&mat, detections)
+    detections := cam.detectObjects(mat)
+    cam.detectionMu.Lock()
+    cam.detections = detections
+    cam.detectionMu.Unlock()
 
-	switch mode {
-	case config.ModeGrayscaleFrame:
-		return cam.grabFrameGrayscale(mat)
-	case config.ModeColorFrame:
-		return cam.grabFrameRGB565(mat)
-	case config.ModeJPEGStream:
-		return cam.grabFrameJPEG(mat, modeConfig)
-	}
+    cam.drawDetections(&mat, detections)
 
-	return nil, fmt.Errorf("unsupported camera mode: %s", mode)
+    switch mode {
+    case config.ModeGrayscaleFrame:
+        return cam.grabFrameGrayscale(mat)
+    case config.ModeColorFrame:
+        return cam.grabFrameRGB565(mat)
+    case config.ModeJPEGStream:
+        return cam.grabFrameJPEG(mat, modeConfig)
+    }
+
+    return nil, fmt.Errorf("unsupported camera mode: %s", mode)
 }
 
 func (cam *Camera) streamFrames(frameRate int) {
-	interval := time.Duration(1000/frameRate) * time.Millisecond
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
+    interval := time.Duration(1000 / frameRate) * time.Millisecond
+    var wg sync.WaitGroup
 
-	for {
-		cam.mu.Lock()
-		if !cam.running {
-			cam.mu.Unlock()
-			break
-		}
-		cam.mu.Unlock()
+    for mode, output := range cam.outputs {
+        wg.Add(1)
+        go func(mode config.CameraMode, output CameraModeOutput) {
+            defer wg.Done()
+            ticker := time.NewTicker(interval)
+            defer ticker.Stop()
 
-		<-ticker.C
-		cam.mu.Lock()
-		for mode, output := range cam.outputs {
-			frame, err := cam.grabFrame(mode)
-			if err != nil {
-				output.lastErr = err
-			} else {
-				output.lastFrame = frame
-				output.lastErr = nil
-			}
-			cam.outputs[mode] = output
-		}
-		cam.mu.Unlock()
-	}
-}
+            for {
+                cam.mu.Lock()
+                if !cam.running {
+                    cam.mu.Unlock()
+                    break
+                }
+                cam.mu.Unlock()
 
-func (cam *Camera) Start(frameRate int) {
-	cam.mu.Lock()
-	if cam.running {
-		cam.mu.Unlock()
-		return
-	}
-	cam.running = true
-	cam.mu.Unlock()
+                <-ticker.C
+                frame, err := cam.grabFrame(mode)
 
-	go cam.streamFrames(frameRate)
+                cam.mu.Lock()
+                if err != nil {
+                    cam.outputs[mode] = CameraModeOutput{
+                        lastFrame: nil,
+                        lastErr:   err,
+                        config:    output.config,
+                    }
+                } else {
+                    cam.outputs[mode] = CameraModeOutput{
+                        lastFrame: frame,
+                        lastErr:   nil,
+                        config:    output.config,
+                    }
+                }
+                cam.mu.Unlock()
+            }
+        }(mode, output)
+    }
+
+    wg.Wait()
 }
 
 func (cam *Camera) SetDesiredResolution(width, height int) {
@@ -340,12 +367,25 @@ func (cam *Camera) ReadFrame(mode config.CameraMode) ([]byte, error) {
     return out, nil
 }
 
-func (cam *Camera) Stop() {
+func (cam *Camera) Start(frameRate int) {
 	cam.mu.Lock()
-	defer cam.mu.Unlock()
-	cam.running = false
-	if cam.capture != nil {
-		cam.capture.Close()
-		cam.capture = nil
+	if cam.running {
+		cam.mu.Unlock()
+		return
 	}
+	cam.running = true
+	cam.mu.Unlock()
+
+	go cam.streamFrames(frameRate)
+}
+
+func (cam *Camera) Stop() {
+    cam.mu.Lock()
+    cam.running = false
+    cam.mu.Unlock()
+
+    if cam.capture != nil {
+        cam.capture.Close()
+        cam.capture = nil
+    }
 }
