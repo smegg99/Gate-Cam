@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 
-	"smuggr.xyz/gate-cam/api/v1/middleware"
 	"smuggr.xyz/gate-cam/api/v1/routes"
 	"smuggr.xyz/gate-cam/common/config"
 
@@ -24,7 +23,7 @@ func Initialize() chan error {
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
 	DefaultRouter = gin.Default()
-	DefaultRouter.Use(middleware.NormalizeTrailingSlashMiddleware())
+	//DefaultRouter.Use(middleware.NormalizeTrailingSlashMiddleware())
 	// DefaultRouter.UseRawPath = true
 	// DefaultRouter.RedirectTrailingSlash = false
 
@@ -40,7 +39,8 @@ func Initialize() chan error {
 
 	errCh := make(chan error)
 	go func() {
-		err := DefaultRouter.RunTLS(":" + strconv.Itoa(int(Config.Port)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
+		// err := DefaultRouter.RunTLS(":" + strconv.Itoa(int(Config.Port)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
+		err := DefaultRouter.Run(":" + strconv.Itoa(int(Config.Port)))
 		errCh <- err
 	}()
 

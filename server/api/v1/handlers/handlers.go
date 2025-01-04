@@ -36,7 +36,7 @@ func HandleCameraStream(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "multipart/x-mixed-replace; boundary=frame")
 
 	for {
-		frame, err := cam.ReadFrame()
+		frame, err := cam.ReadFrame(config.ModeJPEGStream)
 		if err != nil {
 			fmt.Printf("error reading frame from camera %s: %v\n", camID, err)
 			break
@@ -55,6 +55,72 @@ func HandleCameraStream(c *gin.Context) {
 			flusher.Flush()
 		}
 	}
+}
+
+func HandleCameraGrayscaleFrame(c *gin.Context) {
+    camID := c.Param("id")
+
+    cam, ok := cameras.Server.GetCamera(camID)
+    if !ok {
+        Respond(c, http.StatusNotFound, gin.H{"error": fmt.Sprintf("camera not found: %s", camID)})
+        return
+    }
+
+    frame, err := cam.ReadFrame(config.ModeGrayscaleFrame)
+    if err != nil {
+        fmt.Printf("error capturing grayscale frame from camera %s: %v\n", camID, err)
+        Respond(c, http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.Writer.Header().Set("Content-Type", "application/octet-stream")
+    c.Writer.Header().Set("Content-Length", fmt.Sprintf("%d", len(frame)))
+    c.Writer.Header().Set("Connection", "keep-alive")
+    c.Writer.Header().Set("Cache-Control", "cache")
+    c.Writer.Header().Set("Pragma", "cache")
+
+    _, err = c.Writer.Write(frame)
+    if err != nil {
+        fmt.Printf("error sending frame to client for camera %s: %v\n", camID, err)
+        return
+    }
+
+    if flusher, ok := c.Writer.(http.Flusher); ok {
+        flusher.Flush()
+    }
+}
+
+func HandleCameraColorFrame(c *gin.Context) {
+    camID := c.Param("id")
+
+    cam, ok := cameras.Server.GetCamera(camID)
+    if !ok {
+        Respond(c, http.StatusNotFound, gin.H{"error": fmt.Sprintf("camera not found: %s", camID)})
+        return
+    }
+
+    frame, err := cam.ReadFrame(config.ModeColorFrame)
+    if err != nil {
+        fmt.Printf("error capturing color frame from camera %s: %v\n", camID, err)
+        Respond(c, http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.Writer.Header().Set("Content-Type", "application/octet-stream")
+    c.Writer.Header().Set("Content-Length", fmt.Sprintf("%d", len(frame)))
+    c.Writer.Header().Set("Connection", "keep-alive")
+    c.Writer.Header().Set("Cache-Control", "cache")
+    c.Writer.Header().Set("Pragma", "cache")
+
+    _, err = c.Writer.Write(frame)
+    if err != nil {
+        fmt.Printf("error sending frame to client for camera %s: %v\n", camID, err)
+        return
+    }
+
+    if flusher, ok := c.Writer.(http.Flusher); ok {
+        flusher.Flush()
+    }
 }
 
 func Initialize() {

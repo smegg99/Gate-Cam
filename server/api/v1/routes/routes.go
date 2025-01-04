@@ -20,6 +20,8 @@ func SetupCameraRoutes(router *gin.Engine, rootGroup *gin.RouterGroup) {
 	{
 		// cameraGroup.GET("", handlers.GetCamera)
 		cameraGroup.GET("/stream", handlers.HandleCameraStream)
+		cameraGroup.GET("/raw_grayscale_frame", handlers.HandleCameraGrayscaleFrame)
+		cameraGroup.GET("/raw_color_frame", handlers.HandleCameraColorFrame)
 	}
 }
 

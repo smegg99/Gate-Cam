@@ -7,12 +7,32 @@
 			{
 				"name": "balls",
 				"device": 0,
-				"frame_rate": 30,
+				"frame_rate": 60,
 				"frame_width": 640,
 				"frame_height": 480,
-				"brightness": 100,
-				"contrast": 1.5,
-				"quality": 100
+				"modes": {
+					"jpeg_stream": {
+						"out_frame_width": 640,
+						"out_frame_height": 480,
+						"brightness": 80,
+						"contrast": 1.35,
+						"quality": 100
+					},
+					"grayscale_frame": {
+						"out_frame_width": 160,
+						"out_frame_height": 128,
+						"brightness": 80,
+						"contrast": 1.35,
+						"quality": 100
+					},
+					"color_frame": {
+						"out_frame_width": 160,
+						"out_frame_height": 128,
+						"brightness": 80,
+						"contrast": 1.35,
+						"quality": 100
+					}
+				}
 			}
 		]
 	}
