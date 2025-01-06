@@ -1,35 +1,35 @@
 {
 	"api": {
-		"port": 3001
+		"port": 2138,
+		"external_port": 2137
 	},
-	"cameras": {
-		"cameras": [
-			{
-				"name": "balls",
-				"device": 0,
-				"frame_rate": 60,
-				"frame_width": 640,
-				"frame_height": 480,
-				"modes": {
-					"jpeg_stream": {
-						"brightness": 80,
-						"contrast": 1.35,
-						"quality": 100
-					},
-					"grayscale_frame": {
-						"out_frame_width": 160,
-						"out_frame_height": 128,
-						"brightness": 80,
-						"contrast": 1.35
-					},
-					"color_frame": {
-						"out_frame_width": 160,
-						"out_frame_height": 128,
-						"brightness": 80,
-						"contrast": 1.35
-					}
+	"cameras": [
+		{
+			"name": "gate",
+			"frame_width": 640,
+			"frame_height": 4080,
+			"frame_rate": 60,
+			"access_key_env": "GATE_ACCESS_KEY",
+			"modes": {
+				"jpeg_stream": {
+					"quality": 100,
+					"contrast": 1,
+					"brightness": 1,
+					"saturation": 1
+				},
+				"grayscale_frame": {
+					"out_frame_width": 160,
+					"out_frame_height": 128,
+					"brightness": 80,
+					"contrast": 1.35
+				},
+				"color_frame": {
+					"out_frame_width": 160,
+					"out_frame_height": 128,
+					"brightness": 80,
+					"contrast": 1.35
 				}
 			}
-		]
-	}
+		}
+	]
 }

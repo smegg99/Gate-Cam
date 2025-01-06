@@ -2,7 +2,8 @@
 package config
 
 type APIConfig struct {
-	Port int16 `mapstructure:"port"`
+	Port         int16 `mapstructure:"port"`
+	ExternalPort int16 `mapstructure:"external_port"`
 }
 
 type CameraMode string
@@ -29,19 +30,18 @@ type CameraModeConfig struct {
 }
 
 type CameraConfig struct {
-	Name        string                          `mapstructure:"name"`
-	Device      int                             `mapstructure:"device"`
-	FrameRate   int                             `mapstructure:"frame_rate"`
-	FrameWidth  int                             `mapstructure:"frame_width"`  // Only values supported by the camera will be used
-	FrameHeight int                             `mapstructure:"frame_height"`
-	Modes       map[CameraMode]CameraModeConfig `mapstructure:"modes"`
-}
-
-type CamerasConfig struct {
-	Cameras []CameraConfig `mapstructure:"cameras"`
+	Name         string                          `mapstructure:"name"`
+	Device       int                             `mapstructure:"device"`
+	AccessKeyEnv string                          `mapstructure:"access_key_env"`    // Used to authenticate camera streams, currently only JPEG
+	FrameRate    int                             `mapstructure:"frame_rate"`
+	FrameWidth   int                             `mapstructure:"frame_width"`   // Only values supported by the camera will be used
+	FrameHeight  int                             `mapstructure:"frame_height"`
+	Modes        map[CameraMode]CameraModeConfig `mapstructure:"modes"`
+	IsDisplay    bool                            `mapstructure:"is_display"`    // Streaming desktop doesn't work yet
+    DisplayIndex int                             `mapstructure:"display_index"`
 }
 
 type GlobalConfig struct {
-	API     APIConfig     `mapstructure:"api"`
-	Cameras CamerasConfig `mapstructure:"cameras"`
+	API     APIConfig      `mapstructure:"api"`
+	Cameras []CameraConfig `mapstructure:"cameras"`
 }

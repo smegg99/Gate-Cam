@@ -23,14 +23,14 @@
 
 // Constants and Sizes
 const char* host = "192.168.1.42";
-const int port = 3001;
+const int port = 2138;
 
 #ifdef USE_RGB565_FRAMES
-const char* path = "/api/v1/cameras/balls/raw_color_frame";
+const char* path = "/api/v1/camera/gate/raw_color_frame";
 const size_t FRAME_SIZE = TFT_WIDTH * TFT_HEIGHT * 2; // RGB565: 2 bytes per pixel
 #else
-const char* path = "/api/v1/cameras/balls/raw_grayscale_frame";
-const size_t FRAME_SIZE = TFT_WIDTH * TFT_HEIGHT;    // Grayscale: 1 byte per pixel
+const char* path = "/api/v1/camera/gate/raw_grayscale_frame";
+const size_t FRAME_SIZE = TFT_WIDTH * TFT_HEIGHT;     // Grayscale: 1 byte per pixel
 #endif
 
 const String FETCH_FRAME_URL = String("http://") + host + ":" + String(port) + path;

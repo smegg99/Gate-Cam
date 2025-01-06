@@ -10,12 +10,8 @@ import (
 
 var Config config.APIConfig
 
-func SetupCameraRoutes(router *gin.Engine, rootGroup *gin.RouterGroup) {
-	camerasGroup := rootGroup.Group("/cameras")
-	{
-		// camerasGroup.GET("", handlers.GetCameras)
-	}
-
+func SetupCameraRoutes(router *gin.Engine, externalRouter *gin.Engine, rootGroup *gin.RouterGroup, externalRootGroup *gin.RouterGroup) {
+	camerasGroup := rootGroup.Group("/camera")
 	cameraGroup := camerasGroup.Group("/:id")
 	{
 		// cameraGroup.GET("", handlers.GetCamera)
@@ -23,14 +19,21 @@ func SetupCameraRoutes(router *gin.Engine, rootGroup *gin.RouterGroup) {
 		cameraGroup.GET("/raw_grayscale_frame", handlers.HandleCameraGrayscaleFrame)
 		cameraGroup.GET("/raw_color_frame", handlers.HandleCameraColorFrame)
 	}
+
+	externalCamerasGroup := externalRootGroup.Group("/camera")
+	externalCameraGroup := externalCamerasGroup.Group("/:id")
+	{
+		externalCameraGroup.GET("/stream", handlers.HandleCameraStream)
+	}
 }
 
-func Initialize(defaultRouter *gin.Engine) {
+func Initialize(defaultRouter *gin.Engine, externalRouter *gin.Engine) {
 	Config = config.Global.API
 
 	rootGroup := defaultRouter.Group("/api/v1")
+	externalRootGroup := externalRouter.Group("/api/v1")
 
-	SetupCameraRoutes(defaultRouter, rootGroup)
+	SetupCameraRoutes(defaultRouter, externalRouter, rootGroup, externalRootGroup)
 
 	handlers.Initialize()
 }

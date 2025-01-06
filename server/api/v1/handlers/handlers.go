@@ -33,6 +33,14 @@ func HandleCameraStream(c *gin.Context) {
 		return
 	}
 
+    user, pass, ok := c.Request.BasicAuth()
+    if !ok || user != cam.Name || pass != cam.GetAccessKey() {
+        c.Header("WWW-Authenticate", `Basic realm="Restricted"`)
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+        c.Abort()
+        return
+    }
+
 	c.Writer.Header().Set("Content-Type", "multipart/x-mixed-replace; boundary=frame")
 
 	for {

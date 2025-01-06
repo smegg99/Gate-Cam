@@ -14,6 +14,7 @@ import (
 )
 
 var DefaultRouter *gin.Engine
+var ExternalRouter *gin.Engine
 var Config *config.APIConfig
 
 func Initialize() chan error {
@@ -22,26 +23,39 @@ func Initialize() chan error {
 	Config = &config.Global.API
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
+	// TODO: Add TLS support
 	DefaultRouter = gin.Default()
-	//DefaultRouter.Use(middleware.NormalizeTrailingSlashMiddleware())
-	// DefaultRouter.UseRawPath = true
-	// DefaultRouter.RedirectTrailingSlash = false
+	ExternalRouter = gin.Default()
 
 	DefaultRouter.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3002", "http://localhost:3001"},
+		AllowOrigins:     []string{"http://localhost:2137", "http://localhost:2138", "http://localhost:3001"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "X-Auth-Token"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
 
-	routes.Initialize(DefaultRouter)
+	ExternalRouter.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:2137", "http://localhost:2138", "http://gatecam.smuggr.xyz", "https://gatecam.smuggr.xyz"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "X-Auth-Token"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
+	routes.Initialize(DefaultRouter, ExternalRouter)
 
 	errCh := make(chan error)
 	go func() {
 		// err := DefaultRouter.RunTLS(":" + strconv.Itoa(int(Config.Port)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
 		err := DefaultRouter.Run(":" + strconv.Itoa(int(Config.Port)))
 		errCh <- err
+	}()
+
+	extErrCh := make(chan error)
+	go func() {
+		err := ExternalRouter.Run(":" + strconv.Itoa(int(Config.ExternalPort)))
+		extErrCh <- err
 	}()
 
 	return errCh
