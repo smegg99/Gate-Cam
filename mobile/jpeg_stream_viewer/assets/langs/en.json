@@ -1,0 +1,113 @@
+{
+	"screens": {
+		"home": {
+			"title": "Stream Manager",
+			"buttons": {
+				"add_connection": "Add Connection",
+				"settings": "Settings",
+				"about": "About"
+			},
+			"labels": {
+				"delete_selected": "Delete Selected Items",
+				"delete_selected_confirmation": "Are you sure you want to delete {amount} items?",
+				"selected": "{amount} Selected",
+				"no_connections": "No connections available",
+				"delete": "Delete",
+				"cancel": "Cancel"
+			}
+		},
+		"connection_edit": {
+			"title": "Edit Connection",
+			"title_alt": "Add Connection",
+			"buttons": {
+				"save": "Save",
+				"add_action": "Add Action",
+				"cancel": "Cancel",
+				"delete": "Delete"
+			},
+			"labels": {
+				"actions": "Actions",
+				"delete_selected": "Delete Selected Items",
+				"delete_selected_confirmation": "Are you sure you want to delete {amount} items?",
+				"selected": "{amount} Selected",
+				"connection_name": "Name",
+				"endpoint": "Endpoint",
+				"username": "Username",
+				"password": "Password",
+				"please_fill_all_fields": "Please fill all fields",
+				"no_actions_available": "No actions available"
+			}
+		},
+		"action_edit": {
+			"title": "Edit Action",
+			"buttons": {
+				"save": "Save",
+				"add_header": "Add Header"
+			},
+			"labels": {
+				"action_name": "Action Name",
+				"unnamed_action": "Unnamed Action",
+				"endpoint": "Endpoint",
+				"method": "HTTP Method",
+				"icon": "Icon",
+				"headers": "Headers",
+				"header_key": "Key",
+				"header_value": "Value",
+				"no_headers_available": "No headers available",
+				"new_header": "New Header {index}",
+				"body": "Body"
+			}
+		},
+		"connection": {
+			"title": "Connection",
+			"buttons": {
+				"actions": "Actions",
+				"pause": "Pause",
+				"resume": "Resume",
+				"capture_snapshot": "Capture Snapshot",
+				"run": "Run",
+				"close": "Close"
+			},
+			"labels": {
+				"actions": "Actions",
+				"retrying": "Retrying...",
+				"failed_to_load": "Failed to load stream!",
+				"connecting_to": "Connecting to {name}...",
+				"connected_to": "Connected to {name}",
+				"failed_to_capture_snapshot": "Failed to capture snapshot!",
+				"failed_to_save_snapshot": "Failed to save snapshot!",
+				"captured_snapshot": "Captured snapshot!",
+				"action_executed_successfully": "Action {name} executed successfully!",
+				"action_error": "Error: {error}"
+			}
+		},
+		"settings": {
+			"title": "Settings",
+			"labels": {
+				"language": "Language",
+				"theme": "Theme"
+			},
+			"options": {
+				"groups": {
+					"common": "Common"
+				},
+				"languages": {
+					"en": "English",
+					"pl": "Polish"
+				},
+				"themes": {
+					"light": "Light",
+					"dark": "Dark",
+					"system": "System"
+				}
+			}
+		},
+		"about": {
+			"title": "About",
+			"labels": {
+				"version": "Version",
+				"source_code": "Source Code"
+			}
+		}
+	}
+}

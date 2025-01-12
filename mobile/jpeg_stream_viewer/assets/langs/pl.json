@@ -1,0 +1,113 @@
+{
+	"screens": {
+		"home": {
+			"title": "Menedżer Strumieni",
+			"buttons": {
+				"add_connection": "Dodaj Połączenie",
+				"settings": "Ustawienia", 
+				"about": "O Programie"
+			},
+			"labels": {
+				"delete_selected": "Usuń Wybrane Elementy",
+				"delete_selected_confirmation": "Czy na pewno chcesz usunąć {amount} elementów?",
+				"selected": "Wybrano {amount}",
+				"no_connections": "Brak dostępnych połączeń",
+				"delete": "Usuń",
+				"cancel": "Anuluj"
+			}
+		},
+		"connection_edit": {
+			"title": "Edytuj Połączenie",
+			"title_alt": "Dodaj Połączenie",
+			"buttons": {
+				"save": "Zapisz",
+				"add_action": "Dodaj Akcję",
+				"cancel": "Anuluj",
+				"delete": "Usuń"
+			},
+			"labels": {
+				"actions": "Akcje",
+				"delete_selected": "Usuń Wybrane Elementy",
+				"delete_selected_confirmation": "Czy na pewno chcesz usunąć {amount} elementów?",
+				"selected": "Wybrano {amount}",
+				"connection_name": "Nazwa",
+				"endpoint": "Punkt Końcowy",
+				"username": "Nazwa Użytkownika",
+				"password": "Hasło",
+				"please_fill_all_fields": "Proszę wypełnić wszystkie pola",
+				"no_actions_available": "Brak dostępnych akcji"
+			}
+		},
+		"action_edit": {
+			"title": "Edytuj Akcję",
+			"buttons": {
+				"save": "Zapisz",
+				"add_header": "Dodaj Nagłówek"
+			},
+			"labels": {
+				"action_name": "Nazwa Akcji",
+				"unnamed_action": "Akcja Bez Nazwy",
+				"endpoint": "Punkt Końcowy",
+				"method": "Metoda HTTP",
+				"icon": "Ikona",
+				"headers": "Nagłówki",
+				"header_key": "Klucz",
+				"header_value": "Wartość",
+				"no_headers_available": "Brak dostępnych nagłówków",
+				"new_header": "Nowy Nagłówek {index}",
+				"body": "Treść"
+			}
+		},
+		"connection": {
+			"title": "Połączenie",
+			"buttons": {
+				"actions": "Akcje",
+				"pause": "Pauza",
+				"resume": "Wznów",
+				"capture_snapshot": "Zrób Zrzut Ekranu",
+				"run": "Uruchom",
+				"close": "Zamknij"
+			},
+			"labels": {
+				"actions": "Akcje",
+				"retrying": "Ponawianie...",
+				"failed_to_load": "Nie udało się załadować strumienia!",
+				"connecting_to": "Łączenie z {name}...",
+				"connected_to": "Połączono z {name}",
+				"failed_to_capture_snapshot": "Nie udało się zrobić zrzutu ekranu!",
+				"failed_to_save_snapshot": "Nie udało się zapisać zrzutu ekranu!",
+				"captured_snapshot": "Zrobiono zrzut ekranu!",
+				"action_executed_successfully": "Akcja {name} wykonana pomyślnie!",
+				"action_error": "Błąd: {error}"
+			}
+		},
+		"settings": {
+			"title": "Ustawienia",
+			"labels": {
+				"language": "Język",
+				"theme": "Motyw"
+			},
+			"options": {
+				"groups": {
+					"common": "Ogólne"
+				},
+				"languages": {
+					"en": "Angielski",
+					"pl": "Polski"
+				},
+				"themes": {
+					"light": "Jasny",
+					"dark": "Ciemny",
+					"system": "Systemowy"
+				}
+			}
+		},
+		"about": {
+			"title": "O Programie",
+			"labels": {
+				"version": "Wersja",
+				"source_code": "Kod Źródłowy"
+			}
+		}
+	}
+}

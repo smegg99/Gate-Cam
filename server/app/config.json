@@ -6,8 +6,10 @@
 	"cameras": [
 		{
 			"name": "gate",
+			"device": "0",
+			"order": 0,
 			"frame_width": 640,
-			"frame_height": 4080,
+			"frame_height": 480,
 			"frame_rate": 60,
 			"access_key_env": "GATE_ACCESS_KEY",
 			"modes": {

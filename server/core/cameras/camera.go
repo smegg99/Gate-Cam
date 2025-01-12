@@ -30,6 +30,7 @@ type CameraModeOutput struct {
 type Camera struct {
 	Name        string
 	Device      int
+	Order       uint
 	capture     *gocv.VideoCapture
 	mu          sync.Mutex
 	running     bool

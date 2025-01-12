@@ -1,3 +1,4 @@
+// lib/theme/theme.dart
 import 'package:flutter/material.dart';
 
 final ThemeData lightTheme = ThemeData(
@@ -9,7 +10,7 @@ final ThemeData lightTheme = ThemeData(
   ),
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.transparent,
-    elevation: 0,
+    elevation: 8,
     foregroundColor: Colors.black,
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -20,18 +21,32 @@ final ThemeData lightTheme = ThemeData(
     bodyMedium: TextStyle(fontSize: 16, color: Colors.black),
     bodySmall: TextStyle(fontSize: 14, color: Colors.grey),
   ),
+  snackBarTheme: SnackBarThemeData(
+    backgroundColor: Colors.blue,
+    contentTextStyle: const TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    ),
+    behavior: SnackBarBehavior.floating,
+    elevation: 6,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    showCloseIcon: true,
+    dismissDirection: DismissDirection.down,
+  ),
 );
 
 final ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blue,
+    seedColor: Colors.black,
     brightness: Brightness.dark,
   ),
   appBarTheme: const AppBarTheme(
-    backgroundColor: Colors.transparent,
-    elevation: 0,
+    backgroundColor: Colors.black,
+    elevation: 8,
     foregroundColor: Colors.white,
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -41,5 +56,19 @@ final ThemeData darkTheme = ThemeData(
   textTheme: const TextTheme(
     bodyMedium: TextStyle(fontSize: 16, color: Colors.white),
     bodySmall: TextStyle(fontSize: 14, color: Colors.grey),
+  ),
+  snackBarTheme: SnackBarThemeData(
+    backgroundColor: Colors.blue,
+    contentTextStyle: const TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    ),
+    behavior: SnackBarBehavior.floating,
+    elevation: 6,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    showCloseIcon: true,
+    dismissDirection: DismissDirection.down,
   ),
 );

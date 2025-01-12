@@ -1,34 +1,34 @@
-// lib/widgets/stream_list_item.dart
 import 'package:flutter/material.dart';
+import 'package:jpegsv/localization/localization.dart';
 import 'package:jpegsv/models/stream_element.dart';
 
-class StreamListItem extends StatefulWidget {
-  final StreamElement element;
+class ActionListItem extends StatefulWidget {
+  final ActionElement action;
   final bool isSelected;
   final bool isSelectionMode;
   final VoidCallback onTap;
   final VoidCallback onEdit;
-  final VoidCallback onConnect;
   final VoidCallback onLongPress;
   final ValueChanged<bool?> onCheckboxChanged;
 
-  const StreamListItem({
+  const ActionListItem({
     super.key,
-    required this.element,
+    required this.action,
     required this.isSelected,
     required this.isSelectionMode,
     required this.onTap,
     required this.onEdit,
-    required this.onConnect,
     required this.onLongPress,
     required this.onCheckboxChanged,
   });
 
   @override
-  State<StreamListItem> createState() => _StreamListItemState();
+  State<ActionListItem> createState() => _ActionListItemState();
 }
 
-class _StreamListItemState extends State<StreamListItem> {
+class _ActionListItemState extends State<ActionListItem> {
+  AppLocalizations get localizations => AppLocalizations.of(context);
+
   ThemeData get theme => Theme.of(context);
 
   @override
@@ -36,7 +36,6 @@ class _StreamListItemState extends State<StreamListItem> {
     return GestureDetector(
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
-      onDoubleTap: widget.onConnect,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -46,13 +45,16 @@ class _StreamListItemState extends State<StreamListItem> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.element.name,
+                    widget.action.name.isEmpty
+                        ? localizations.translate(
+                            'screens.action_edit.labels.unnamed_action')
+                        : widget.action.name,
                     style: theme.textTheme.titleMedium,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
                   Text(
-                    widget.element.url,
+                    widget.action.endpoint,
                     style: theme.textTheme.labelSmall,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
@@ -64,17 +66,9 @@ class _StreamListItemState extends State<StreamListItem> {
               Checkbox(
                   value: widget.isSelected, onChanged: widget.onCheckboxChanged)
             else
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, color: theme.colorScheme.primary),
-                    onPressed: widget.onEdit,
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.link, color: theme.colorScheme.secondary),
-                    onPressed: widget.onConnect,
-                  ),
-                ],
+              IconButton(
+                icon: Icon(Icons.edit, color: theme.colorScheme.primary),
+                onPressed: widget.onEdit,
               ),
           ],
         ),

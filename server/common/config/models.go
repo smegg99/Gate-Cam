@@ -32,6 +32,7 @@ type CameraModeConfig struct {
 type CameraConfig struct {
 	Name         string                          `mapstructure:"name"`
 	Device       int                             `mapstructure:"device"`
+	Order        uint                            `mapstructure:"order"`
 	AccessKeyEnv string                          `mapstructure:"access_key_env"`    // Used to authenticate camera streams, currently only JPEG
 	FrameRate    int                             `mapstructure:"frame_rate"`
 	FrameWidth   int                             `mapstructure:"frame_width"`   // Only values supported by the camera will be used

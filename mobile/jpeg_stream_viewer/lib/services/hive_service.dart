@@ -1,3 +1,4 @@
+// lib/services/hive_service.dart
 import 'package:hive/hive.dart';
 import 'package:jpegsv/models/stream_element.dart';
 

@@ -1,5 +1,8 @@
+// lib/screens/main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:jpegsv/localization/localization.dart';
 import 'package:jpegsv/models/stream_element.dart';
 import 'package:jpegsv/widgets/stream_list_item.dart';
 
@@ -12,6 +15,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   bool _isSelectionMode = false;
+
+  AppLocalizations get localizations => AppLocalizations.of(context);
+  ThemeData get theme => Theme.of(context);
+
   final Set<int> _selectedIndices = {};
 
   void _handleEdit(StreamElement element) {
@@ -24,6 +31,14 @@ class _MainScreenState extends State<MainScreen> {
 
   void _handleConnect(StreamElement element) {
     Navigator.pushNamed(context, '/connect', arguments: element);
+  }
+
+  void _handleSettings() {
+    Navigator.pushNamed(context, '/settings');
+  }
+
+  void _handleAbout() {
+    Navigator.pushNamed(context, '/about');
   }
 
   void _toggleSelectionMode(int index) {
@@ -53,17 +68,19 @@ class _MainScreenState extends State<MainScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Selected Items'),
-        content: Text(
-            'Are you sure you want to delete ${_selectedIndices.length} items?'),
+        title: Text(
+            localizations.translate('screens.home.labels.delete_selected')),
+        content: Text(localizations.translateWithParams(
+            'screens.home.labels.delete_selected_confirmation',
+            {'amount': _selectedIndices.length.toString()})),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(localizations.translate('screens.home.labels.cancel')),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(localizations.translate('screens.home.labels.delete')),
           ),
         ],
       ),
@@ -86,25 +103,32 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isSelectionMode
-            ? '${_selectedIndices.length} Selected'
-            : 'Stream Manager'),
+            ? localizations.translateWithParams('screens.home.labels.selected',
+                {'amount': _selectedIndices.length.toString()})
+            : localizations.translate('screens.home.title')),
         actions: _isSelectionMode
             ? [
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () async {
-                    final box = Hive.box<StreamElement>('stream_elements');
-                    await _deleteSelectedItems(box);
-                  },
+                Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () async {
+                      final box = Hive.box<StreamElement>('stream_elements');
+                      await _deleteSelectedItems(box);
+                    },
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    setState(() {
-                      _isSelectionMode = false;
-                      _selectedIndices.clear();
-                    });
-                  },
+                Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _isSelectionMode = false;
+                        _selectedIndices.clear();
+                      });
+                    },
+                  ),
                 ),
               ]
             : null,
@@ -116,19 +140,24 @@ class _MainScreenState extends State<MainScreen> {
           final elements = box.values.toList().cast<StreamElement>();
 
           if (elements.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.image_not_supported, size: 64, color: Colors.grey),
                   SizedBox(height: 16),
-                  Text('No streams available'),
+                  Text(localizations
+                      .translate('screens.home.labels.no_connections')),
                 ],
               ),
             );
           }
 
           return ListView.builder(
+            padding:
+                const EdgeInsets.only(left: 8, right: 8, top: 16, bottom: 84),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
             itemCount: elements.length,
             itemBuilder: (context, index) {
               final element = elements[index];
@@ -138,6 +167,12 @@ class _MainScreenState extends State<MainScreen> {
                 element: element,
                 isSelected: isSelected,
                 isSelectionMode: _isSelectionMode,
+                onTap: () => {
+                  if (_isSelectionMode)
+                    _toggleSelectItem(index)
+                  else
+                    _handleConnect(element)
+                },
                 onEdit: () => _handleEdit(element),
                 onConnect: () => _handleConnect(element),
                 onLongPress: () => _toggleSelectionMode(index),
@@ -149,9 +184,34 @@ class _MainScreenState extends State<MainScreen> {
       ),
       floatingActionButton: _isSelectionMode
           ? null
-          : FloatingActionButton(
-              onPressed: _handleCreate,
-              child: const Icon(Icons.add),
+          : SpeedDial(
+              gradient: null,
+              icon: Icons.menu,
+              activeIcon: Icons.close,
+              childPadding: const EdgeInsets.symmetric(vertical: 6),
+              children: [
+                SpeedDialChild(
+                  labelBackgroundColor: Colors.transparent,
+                  labelShadow: null,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.add),
+                  onTap: _handleCreate,
+                ),
+                SpeedDialChild(
+                  labelBackgroundColor: Colors.transparent,
+                  labelShadow: null,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.settings),
+                  onTap: _handleSettings,
+                ),
+                SpeedDialChild(
+                  labelBackgroundColor: Colors.transparent,
+                  labelShadow: null,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.info),
+                  onTap: _handleAbout,
+                ),
+              ],
             ),
     );
   }

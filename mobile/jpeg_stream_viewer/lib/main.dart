@@ -1,12 +1,20 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:jpegsv/models/stream_element.dart';
+import 'package:jpegsv/models/settings_element.dart';
+import 'package:jpegsv/theme/notifier.dart';
+import 'package:jpegsv/localization/localization.dart';
 import 'package:jpegsv/screens/main_screen.dart';
-import 'package:jpegsv/screens/edit_screen.dart';
-import 'package:jpegsv/screens/connect_screen.dart';
-import 'package:jpegsv/theme/theme.dart';
+import 'package:jpegsv/screens/connection_edit_screen.dart';
+import 'package:jpegsv/screens/connection_screen.dart';
+import 'package:jpegsv/screens/settings_screen.dart';
+import 'package:jpegsv/screens/about_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,9 +23,59 @@ void main() async {
 
   await Hive.initFlutter(directory.path);
   Hive.registerAdapter(StreamElementAdapter());
+  Hive.registerAdapter(ActionElementAdapter());
+  Hive.registerAdapter(SettingsElementAdapter());
   await Hive.openBox<StreamElement>('stream_elements');
+  final settingsBox = await Hive.openBox<SettingsElement>('settings');
+  final settings = settingsBox.get(0);
 
-  runApp(const MyApp());
+  String themeMode = settings?.theme ?? 'System';
+  String language = settings?.language ?? 'English';
+  Locale initialLocale =
+      language == 'English' ? const Locale('en') : const Locale('pl');
+
+  runApp(
+    DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        final fallbackSeed = Colors.blue;
+
+        final lightTheme = ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.light,
+          colorScheme: lightDynamic ??
+              ColorScheme.fromSeed(
+                  seedColor: fallbackSeed, brightness: Brightness.light),
+        );
+        final darkTheme = ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorScheme: darkDynamic ??
+              ColorScheme.fromSeed(
+                  seedColor: fallbackSeed, brightness: Brightness.dark),
+        );
+
+        final brightness =
+            SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        final initialTheme = themeMode == 'Light'
+            ? lightTheme
+            : themeMode == 'Dark'
+                ? darkTheme
+                : brightness == Brightness.dark
+                    ? darkTheme
+                    : lightTheme;
+
+        return ChangeNotifierProvider(
+          create: (context) => ThemeNotifier(initialTheme, themeMode),
+          child: MyApp(
+            appDirectory: directory,
+            initialLocale: initialLocale,
+            lightTheme: lightTheme,
+            darkTheme: darkTheme,
+          ),
+        );
+      },
+    ),
+  );
 }
 
 Future<Directory> _createAppDirectory(Directory appDir) async {
@@ -47,26 +105,76 @@ Future<Directory> _getAppDirectory() async {
   }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  final Directory appDirectory;
+  final Locale initialLocale;
+  final ThemeData lightTheme;
+  final ThemeData darkTheme;
+
+  const MyApp({
+    super.key,
+    required this.appDirectory,
+    required this.initialLocale,
+    required this.lightTheme,
+    required this.darkTheme,
+  });
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late Locale _locale;
+
+  @override
+  void initState() {
+    super.initState();
+    _locale = widget.initialLocale;
+  }
+
+  void _setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return MaterialApp(
-      title: 'JPEG Stream Viewer',
+      title: 'JPEGSV',
+      locale: _locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('pl'),
+      ],
       debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: lightTheme,
-      themeMode: ThemeMode.system,
+      theme: themeNotifier.currentTheme,
+      darkTheme: widget.darkTheme,
+      themeMode:
+          themeNotifier.currentThemeMode,
       routes: {
         '/': (context) => const MainScreen(),
-        '/edit': (context) => EditScreen(
+        '/edit': (context) => ConnectionEditScreen(
               element:
                   ModalRoute.of(context)!.settings.arguments as StreamElement?,
             ),
-        '/connect': (context) => ConnectScreen(
+        '/connect': (context) => ConnectionScreen(
               element:
                   ModalRoute.of(context)!.settings.arguments as StreamElement,
+              appDirectory: widget.appDirectory,
+            ),
+        '/settings': (context) => SettingsScreen(onLocaleChange: _setLocale),
+        '/about': (context) => AboutScreen(
+              version: '1.0.0',
+              githubUrl: 'https://github.com/smeggmann99/gate-cam',
             ),
       },
     );
