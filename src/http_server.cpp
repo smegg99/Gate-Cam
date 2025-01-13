@@ -1,8 +1,10 @@
 #include "http_server.h"
 #include "common.h"
 #include "config.h"
+#include "display.h"
 #include <ArduinoJson.h>
 
+#ifndef DISABLE_NETWORKING
 void handleStatus() {
 	JsonDocument jsonDoc;
 
@@ -12,7 +14,8 @@ void handleStatus() {
 	if (xSemaphoreTake(bufferMutex, pdMS_TO_TICKS(100))) {
 		jsonDoc["current_camera_id"] = currentCameraID;
 		jsonDoc["stream_available"] = streamAvailable;
-		xSemaphoreGive(bufferMutex);
+		if (bufferMutex != NULL)
+			xSemaphoreGive(bufferMutex);
 	}
 	else {
 		jsonDoc["current_camera_id"] = "unavailable";
@@ -52,6 +55,10 @@ void handleControl() {
 		digitalWrite(BUZZER_PIN, buzzerState ? HIGH : LOW);
 	}
 
+	if (jsonDoc["restart"].is<bool>() && jsonDoc["restart"]) {
+		ESP.restart();
+	}
+
 	if (jsonDoc["camera_id"].is<int>()) {
 		int newCameraID = jsonDoc["camera_id"];
 		if (newCameraID >= 0 && newCameraID < MAX_CAMERAS) {
@@ -64,10 +71,12 @@ void handleControl() {
 
 				if (!displayUpdatePending) {
 					displayUpdatePending = true;
-					xSemaphoreGive(displayUpdateSemaphore);
+					if (displayUpdateSemaphore != NULL)
+						xSemaphoreGive(displayUpdateSemaphore);
 				}
 
-				xSemaphoreGive(bufferMutex);
+				if (bufferMutex != NULL)
+					xSemaphoreGive(bufferMutex);
 			}
 		}
 		else {
@@ -95,3 +104,4 @@ void httpServerTask(void* parameter) {
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }
+#endif

@@ -6,6 +6,7 @@
 #include "periphs.h"
 #include <HTTPClient.h>
 
+#ifndef DISABLE_NETWORKING
 void fetchTask(void* parameter) {
 	TickType_t lastWakeTime = xTaskGetTickCount();
 	String fetchURL;
@@ -26,7 +27,8 @@ void fetchTask(void* parameter) {
 
 		if (xSemaphoreTake(bufferMutex, portMAX_DELAY)) {
 			cameraId = currentCameraID;
-			xSemaphoreGive(bufferMutex);
+			if (bufferMutex != NULL)
+				xSemaphoreGive(bufferMutex);
 		}
 
 		fetchURL = buildFetchURL(cameraId);
@@ -57,13 +59,15 @@ void fetchTask(void* parameter) {
 							streamDisplayStartTime = millis();
 							if (!displayUpdatePending) {
 								displayUpdatePending = true;
-								xSemaphoreGive(displayUpdateSemaphore);
+								if (displayUpdateSemaphore != NULL)
+									xSemaphoreGive(displayUpdateSemaphore);
 							}
 						}
 						else {
 							DEBUG_PRINTF("Camera ID changed during fetch. Discarding frame for Camera ID: %d\n", fetchedCameraID);
 						}
-						xSemaphoreGive(bufferMutex);
+						if (bufferMutex != NULL)
+							xSemaphoreGive(bufferMutex);
 					}
 				}
 				else {
@@ -91,11 +95,13 @@ void fetchTask(void* parameter) {
 
 						if (!frameReady) {
 							frameReady = true;
-							xSemaphoreGive(frameReadySemaphore);
+							if (frameReadySemaphore != NULL)
+								xSemaphoreGive(frameReadySemaphore);
 						}
 					}
 				}
-				xSemaphoreGive(bufferMutex);
+				if (bufferMutex != NULL)
+					xSemaphoreGive(bufferMutex);
 			}
 		}
 		else {
@@ -105,16 +111,19 @@ void fetchTask(void* parameter) {
 
 				if (!displayUpdatePending) {
 					displayUpdatePending = true;
-					xSemaphoreGive(displayUpdateSemaphore);
+					if (displayUpdateSemaphore != NULL)
+						xSemaphoreGive(displayUpdateSemaphore);
 				}
 
-				xSemaphoreGive(bufferMutex);
+				if (bufferMutex != NULL)
+					xSemaphoreGive(bufferMutex);
 			}
 		}
 
 		vTaskDelayUntil(&lastWakeTime, fetchInterval);
 	}
 }
+#endif
 
 void displayTask(void* parameter) {
 	while (true) {
@@ -142,14 +151,16 @@ void displayTask(void* parameter) {
 					displayCameraStatus();
 				}
 
-				xSemaphoreGive(bufferMutex);
+				if (bufferMutex != NULL)
+					xSemaphoreGive(bufferMutex);
 			}
 
 			tft.endWrite();
 
 			if (xSemaphoreTake(bufferMutex, portMAX_DELAY)) {
 				displayUpdatePending = false;
-				xSemaphoreGive(bufferMutex);
+				if (bufferMutex != NULL)
+					xSemaphoreGive(bufferMutex);
 			}
 		}
 	}
@@ -162,3 +173,23 @@ void periphTask(void* parameter) {
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }
+
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
+void powerConservingModeTask(void* parameter) {
+	resetStimulusTime();
+	while (true) {
+		if (shouldGoToSleep()) {
+
+#ifdef ENABLE_DEEP_SLEEP
+			enterDeepSleep();
+#endif
+
+#ifdef ENABLE_REST
+			enterRest();
+#endif
+
+		}
+		vTaskDelay(pdMS_TO_TICKS(10000));
+	}
+}
+#endif

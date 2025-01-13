@@ -5,4 +5,8 @@ void fetchTask(void* parameter);
 void displayTask(void* parameter);
 void periphTask(void* parameter);
 
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
+void powerConservingModeTask(void* parameter);
+#endif
+
 #endif

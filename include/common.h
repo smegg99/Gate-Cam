@@ -30,6 +30,12 @@ extern const size_t CHUNK_SIZE;
 extern const char* pathFormat;
 extern const size_t FRAME_SIZE;
 extern const size_t CHUNK_SIZE;
+extern uint16_t grayToRGB565Table[256];
+void initGrayToRGB565Table();
+#endif
+
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
+extern const uint64_t DEEP_SLEEP_INTERVAL;
 #endif
 
 extern uint8_t* frameBuffer1;
@@ -41,6 +47,11 @@ extern SemaphoreHandle_t bufferMutex;
 extern SemaphoreHandle_t frameReadySemaphore;
 extern SemaphoreHandle_t displayUpdateSemaphore;
 
+extern TaskHandle_t fetchTaskHandle;
+extern TaskHandle_t displayTaskHandle;
+extern TaskHandle_t periphTaskHandle;
+extern TaskHandle_t httpServerTaskHandle;
+
 extern volatile bool displayUpdatePending;
 extern volatile bool cameraIdChanged;
 extern volatile bool frameReady;
@@ -50,6 +61,10 @@ extern volatile uint8_t currentCameraID;
 
 extern unsigned long lastEncoderChangeTime;
 extern unsigned long lastProcessTime;
+
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST) 
+extern unsigned long lastStimulusTime;
+#endif
 
 extern volatile bool showStreamFlag;
 extern unsigned long streamDisplayStartTime;
@@ -63,10 +78,12 @@ extern DisplayState currentDisplayState;
 
 extern TFT_eSPI tft;
 
+#ifndef DISABLE_NETWORKING
 extern WiFiClient wifiClient;
 extern HTTPClient http;
 
 extern WebServer server;
+#endif
 
 extern ESP32Encoder encoder;
 extern volatile bool buzzerOn;

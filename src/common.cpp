@@ -18,6 +18,10 @@ const size_t FRAME_SIZE = TFT_WIDTH * TFT_HEIGHT;
 const size_t CHUNK_SIZE = 1024;
 #endif
 
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
+const uint64_t DEEP_SLEEP_INTERVAL = 180000;
+#endif
+
 uint8_t* frameBuffer1 = nullptr;
 uint8_t* frameBuffer2 = nullptr;
 uint8_t* displayBuffer = nullptr;
@@ -27,12 +31,21 @@ SemaphoreHandle_t bufferMutex = NULL;
 SemaphoreHandle_t frameReadySemaphore = NULL;
 SemaphoreHandle_t displayUpdateSemaphore = NULL;
 
+TaskHandle_t fetchTaskHandle = NULL;
+TaskHandle_t displayTaskHandle = NULL;
+TaskHandle_t periphTaskHandle = NULL;
+TaskHandle_t httpServerTaskHandle = NULL;
+
 volatile bool displayUpdatePending = false;
 volatile bool cameraIdChanged = false;
 volatile bool frameReady = false;
 volatile bool streamAvailable = false;
 
 volatile uint8_t currentCameraID = 0;
+
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
+unsigned long lastStimulusTime = 0;
+#endif
 
 unsigned long lastEncoderChangeTime = 0;
 unsigned long lastProcessTime = 0;
@@ -44,10 +57,12 @@ DisplayState currentDisplayState = SHOW_CAMERA_STATUS;
 
 TFT_eSPI tft = TFT_eSPI();
 
+#ifndef DISABLE_NETWORKING
 WiFiClient wifiClient;
 HTTPClient http;
 
 WebServer server(80);
+#endif
 
 ESP32Encoder encoder;
 volatile bool buzzerOn = false;
@@ -56,7 +71,6 @@ const unsigned long BUZZER_DURATION = 20;
 
 #ifndef USE_RGB565_FRAMES
 uint16_t grayToRGB565Table[256];
-
 void initGrayToRGB565Table() {
 	for (int i = 0; i < 256; i++) {
 		grayToRGB565Table[i] = tft.color565(i, i, i);

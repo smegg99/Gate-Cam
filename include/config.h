@@ -2,9 +2,15 @@
 #define CONFIG_H
 
 #define USE_RGB565_FRAMES
-// #define ENABLE_SERIAL
+//#define ENABLE_SERIAL
 #define ENABLE_BUZZER
-// #define ENABLE_OTA
+//#define ENABLE_OTA // Didn't work reliably with this exact ESP32 board
+//#define ENABLE_DEEP_SLEEP // Some displays may not support it, the backlight may stay on
+
+// A lighter way to conserve power, but not as deep as deep sleep,
+// tells the ESP32 to go into light sleep mode and pushes a black screen
+#define ENABLE_REST
+//#define DISABLE_NETWORKING // Used for testing the sleeping functionality
 
 #ifdef ENABLE_SERIAL
 #define DEBUG_PRINT(x)    Serial.print(x)
@@ -23,7 +29,7 @@
 #define ENCODER_PIN_DT     26
 #define ENCODER_SWITCH_PIN 25
 
-#define SET_FPS                40
+#define SET_FPS                60
 #define MAX_CAMERAS            16
 #define COUNTS_PER_DETENT      2
 #define MAX_STEPS_PER_LOOP     5

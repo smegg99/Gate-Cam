@@ -8,12 +8,60 @@
 #include <ArduinoOTA.h>
 #endif
 
+#if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
+void reconnectToWiFi() {
+	pushSolidColorFrame(TFT_BLACK);
+
+	tft.setTextSize(1);
+	tft.setCursor(0, 0);
+
+#ifndef DISABLE_NETWORKING
+	tft.setTextColor(TFT_BLACK, TFT_YELLOW);
+	tft.println("Reconnecting to WiFi:");
+
+	tft.setTextColor(TFT_WHITE, TFT_BLACK);
+	tft.println(WIFI_SSID);
+
+	WiFi.disconnect(true);
+	WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+	delay(120);
+	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+	tft.println("Reconnecting");
+
+	while (WiFi.status() != WL_CONNECTED) {
+		DEBUG_PRINT(".");
+		tft.print(".");
+		delay(120);
+	}
+
+	WiFi.setHostname(HOSTNAME);
+
+	tft.setTextColor(TFT_GREEN, TFT_BLACK);
+	tft.println("\nReconnected!");
+	DEBUG_PRINTLN("Reconnected to WiFi");
+#endif
+
+	pushSolidColorFrame(TFT_BLACK);
+
+	if (!displayUpdatePending) {
+		displayUpdatePending = true;
+		if (displayUpdateSemaphore)
+			xSemaphoreGive(displayUpdateSemaphore);
+	}
+}
+#endif
+
 void connectToWiFi() {
 	pushSolidColorFrame(TFT_BLACK);
 
 	tft.setTextSize(1);
 	tft.setCursor(0, 0);
 
+	tft.setTextColor(TFT_BLACK, TFT_DARKGREY);
+	tft.println("Initializing...");
+
+#ifndef DISABLE_NETWORKING
 	tft.setTextColor(TFT_BLACK, TFT_YELLOW);
 	tft.println("Connecting to WiFi:");
 
@@ -38,6 +86,13 @@ void connectToWiFi() {
 	tft.setTextColor(TFT_GREEN, TFT_BLACK);
 	tft.println("\nConnected!");
 	DEBUG_PRINTLN("Connected to WiFi");
+
+	tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+	tft.println("IP address:");
+
+	tft.setTextColor(TFT_WHITE, TFT_BLACK);
+	tft.println(WiFi.localIP());
+#endif
 
 	// Sadly, I didn't manage to setup OTA to work reliably with this exact
 	// ESP32 board I used in this project, but it might work with other boards.
@@ -78,30 +133,31 @@ void connectToWiFi() {
 	tft.println("OTA Ready");
 #endif
 
-	tft.setTextColor(TFT_BLACK, TFT_ORANGE);
-	tft.println("IP address:");
-
-	tft.setTextColor(TFT_WHITE, TFT_BLACK);
-	tft.println(WiFi.localIP());
-
 	tft.setTextColor(TFT_BLACK, TFT_DARKCYAN);
 	tft.printf("Waiting %d seconds...\n", WIFI_SCREEN_LIFESPAN / 1000);
 
+#ifdef ENABLE_OTA
 	unsigned long startTime = millis();
 	while (millis() - startTime < WIFI_SCREEN_LIFESPAN) {
 
-#ifdef ENABLE_OTA
+
 		ArduinoOTA.handle();
+
+
+		delay(1000);
+	}
 #endif
 
-		delay(100);
-	}
+#ifndef ENABLE_OTA
+	delay(WIFI_SCREEN_LIFESPAN);
+#endif
 
 	pushSolidColorFrame(TFT_BLACK);
 
 	if (!displayUpdatePending) {
 		displayUpdatePending = true;
-		xSemaphoreGive(displayUpdateSemaphore);
+		if (displayUpdateSemaphore != NULL)
+			xSemaphoreGive(displayUpdateSemaphore);
 	}
 }
 
