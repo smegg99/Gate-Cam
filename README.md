@@ -28,8 +28,8 @@
 ## Gallery
 
 <div style="display: grid; grid-template-columns: repeat(4, auto); justify-content: center; align-items: center; gap: 25px; padding: 0; margin: 0;">
-    <img src="./static/interactive_stream_preview.png" alt="Interactive Stream Interface Preview" style="height: auto; max-width: 100%; margin: 0; padding: 0;"/>
-    <img src="./static/actions_preview.png" alt="Actions Management Interface Preview" style="height: auto; max-width: 100%; margin: 0; padding: 0;"/>
-    <img src="./static/example_connection.png" alt="Example of Connection Setup" style="height: auto; max-width: 100%; margin: 0; padding: 0;"/>
-    <img src="./static/example_action.png" alt="Example Action Configuration Screen" style="height: auto; max-width: 100%; margin: 0; padding: 0;"/>
+    <img src="./static/interactive_stream_preview.png" alt="Interactive Stream Interface Preview" style="height: auto; max-width: 90%; margin: 0; padding: 0;"/>
+    <img src="./static/actions_preview.png" alt="Actions Management Interface Preview" style="height: auto; max-width: 90%; margin: 0; padding: 0;"/>
+    <img src="./static/example_connection.png" alt="Example of Connection Setup" style="height: auto; max-width: 90%; margin: 0; padding: 0;"/>
+    <img src="./static/example_action.png" alt="Example Action Configuration Screen" style="height: auto; max-width: 90%; margin: 0; padding: 0;"/>
 </div>
