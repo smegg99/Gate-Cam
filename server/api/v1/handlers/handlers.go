@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,36 +18,46 @@ import (
 var Config *config.APIConfig
 
 func handleDeviceEndpoint(c *gin.Context, device *devices.Device) {
-	endpoint := c.Param("endpoint")
-	targetURL := fmt.Sprintf("http://%s:%d/%s", device.GetIP(), device.GetPort(), endpoint)
+    endpoint := c.Param("endpoint")
+    targetURL := fmt.Sprintf("http://%s:%d%s", device.GetIP(), device.GetPort(), endpoint)
 
-	req, err := http.NewRequest(c.Request.Method, targetURL, c.Request.Body)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
-		return
-	}
+    bodyBytes, err := io.ReadAll(c.Request.Body)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
+        return
+    }
 
-	for key, values := range c.Request.Header {
-		for _, value := range values {
-			req.Header.Add(key, value)
-		}
-	}
+    c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to forward request"})
-		return
-	}
-	defer resp.Body.Close()
+    req, err := http.NewRequest(c.Request.Method, targetURL, bytes.NewBuffer(bodyBytes))
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+        return
+    }
 
-	for key, values := range resp.Header {
-		for _, value := range values {
-			c.Writer.Header().Add(key, value)
-		}
-	}
-	c.Writer.WriteHeader(resp.StatusCode)
-	io.Copy(c.Writer, resp.Body)
+    for key, values := range c.Request.Header {
+        for _, value := range values {
+            req.Header.Add(key, value)
+        }
+    }
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to forward request", "details": err.Error()})
+        return
+    }
+    defer resp.Body.Close()
+
+    fmt.Printf("Forwarded request to %s, response status: %d\n", targetURL, resp.StatusCode)
+
+    for key, values := range resp.Header {
+        for _, value := range values {
+            c.Writer.Header().Add(key, value)
+        }
+    }
+    c.Writer.WriteHeader(resp.StatusCode)
+    io.Copy(c.Writer, resp.Body)
 }
 
 func handleCameraStream(c *gin.Context, cam *cameras.Camera) {

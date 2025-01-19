@@ -53,7 +53,9 @@ func Initialize() chan error {
 
 	extErrCh := make(chan error)
 	go func() {
-		err := DefaultRouter.RunTLS(":" + strconv.Itoa(int(Config.ExternalPort)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
+		// Not needed since I use a reverse proxy
+		//err := ExternalRouter.RunTLS(":" + strconv.Itoa(int(Config.ExternalPort)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
+		err := ExternalRouter.Run(":" + strconv.Itoa(int(Config.ExternalPort)))
 		extErrCh <- err
 	}()
 

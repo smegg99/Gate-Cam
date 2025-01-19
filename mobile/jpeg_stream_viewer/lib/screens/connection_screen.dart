@@ -86,9 +86,14 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                 try {
                   final request = await HttpClient()
                       .openUrl(action.method, Uri.parse(action.endpoint));
+
                   action.headers.forEach((key, value) {
                     request.headers.add(key, value);
                   });
+
+                  if (action.body != null) {
+                    request.write(action.body);
+                  }
 
                   final result = await request.close();
 
