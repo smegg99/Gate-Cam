@@ -9,3 +9,4 @@ server/app/yolov5n.onnx
 server/app/deploy.prototxt
 server/app/mobilenet_iter_73000.caffemodel
 include/secrets.h
+server/.env

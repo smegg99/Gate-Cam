@@ -1,0 +1,27 @@
+FROM golang:1.23.3 AS builder
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    make
+
+WORKDIR /app
+
+COPY . .
+
+RUN make
+
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y ca-certificates
+
+WORKDIR /app
+
+COPY --from=builder /app/build/Gatecam/config.json /app/config.json
+COPY --from=builder /app/build/Gatecam/Gatecam /app/Gatecam
+
+RUN chmod +x /app/Gatecam
+
+EXPOSE 2137
+
+CMD ["./Gatecam"]
