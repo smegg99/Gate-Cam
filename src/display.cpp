@@ -5,7 +5,7 @@
 void initDisplay() {
 	DEBUG_PRINTLN("Initializing display...");
 	tft.init();
-	tft.setRotation(1);
+	tft.setRotation(3);
 	pushSolidColorFrame(TFT_BLACK);
 	DEBUG_PRINTLN("Display initialized.");
 }

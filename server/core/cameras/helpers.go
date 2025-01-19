@@ -82,56 +82,52 @@ func (cam *Camera) drawDetections(frame *gocv.Mat, detections []Entity) {
 	}
 }
 
-func (cam *Camera) rotateImage(mat gocv.Mat, modeConfig config.CameraModeConfig) gocv.Mat {
+func (cam *Camera) rotateImage(mat *gocv.Mat, modeConfig config.CameraModeConfig) {
 	switch modeConfig.Rotate {
 	case 90:
-		gocv.Rotate(mat, &mat, gocv.Rotate90Clockwise)
+		gocv.Rotate(*mat, mat, gocv.Rotate90Clockwise)
 	case 180:
-		gocv.Rotate(mat, &mat, gocv.Rotate180Clockwise)
+		gocv.Rotate(*mat, mat, gocv.Rotate180Clockwise)
 	case 270:
-		gocv.Rotate(mat, &mat, gocv.Rotate90CounterClockwise)
+		gocv.Rotate(*mat, mat, gocv.Rotate90CounterClockwise)
 	}
-	return mat
 }
 
-func (cam *Camera) flipImage(mat gocv.Mat, modeConfig config.CameraModeConfig) gocv.Mat {
-	if modeConfig.Flip == -1 || modeConfig.Flip == 0 || modeConfig.Flip == 1 {
-		gocv.Flip(mat, &mat, modeConfig.Flip)
-	}
-	return mat
+func (cam *Camera) flipImage(mat *gocv.Mat, modeConfig config.CameraModeConfig) {
+    if modeConfig.Flip == -1 || modeConfig.Flip == 0 || modeConfig.Flip == 1 {
+        gocv.Flip(*mat, mat, modeConfig.Flip)
+    }
 }
 
-func (cam *Camera) adjustBrightnessContrast(mat gocv.Mat, modeConfig config.CameraModeConfig) gocv.Mat {
-	alpha := modeConfig.Contrast
-	beta := modeConfig.Brightness
-
-	gocv.ConvertScaleAbs(mat, &mat, alpha, beta)
-	return mat
+func (cam *Camera) adjustBrightnessContrast(mat *gocv.Mat, modeConfig config.CameraModeConfig) {
+    alpha := modeConfig.Contrast
+    beta := modeConfig.Brightness
+    gocv.ConvertScaleAbs(*mat, mat, alpha, beta)
 }
 
-func (cam *Camera) scaleImage(mat gocv.Mat, modeConfig config.CameraModeConfig) gocv.Mat {
+func (cam *Camera) scaleImage(mat *gocv.Mat, modeConfig config.CameraModeConfig) {
     if modeConfig.OutFrameWidth == 0 || modeConfig.OutFrameHeight == 0 {
-        return mat
+        return
     }
 
     if mat.Cols() == modeConfig.OutFrameWidth && mat.Rows() == modeConfig.OutFrameHeight {
-		return mat.Clone()
-	}
+        return
+    }
 
-	resized := gocv.NewMat()
-	gocv.Resize(mat, &resized, image.Pt(modeConfig.OutFrameWidth, modeConfig.OutFrameHeight), 0, 0, gocv.InterpolationLinear)
-	return resized
+    resized := gocv.NewMat()
+    gocv.Resize(*mat, &resized, image.Pt(modeConfig.OutFrameWidth, modeConfig.OutFrameHeight), 0, 0, gocv.InterpolationLinear)
+    
+    mat.Close()
+    *mat = resized
 }
 
-func (cam *Camera) applyPostProcessing(mat gocv.Mat, modeConfig config.CameraModeConfig) gocv.Mat {
-	mat = cam.rotateImage(mat, modeConfig)
-	mat = cam.flipImage(mat, modeConfig)
-	mat = cam.adjustBrightnessContrast(mat, modeConfig)
-
-    mat = cam.scaleImage(mat, modeConfig)
-
-	return mat
+func (cam *Camera) applyPostProcessing(mat *gocv.Mat, modeConfig config.CameraModeConfig) {
+    cam.rotateImage(mat, modeConfig)
+    cam.flipImage(mat, modeConfig)
+    cam.adjustBrightnessContrast(mat, modeConfig)
+    cam.scaleImage(mat, modeConfig)
 }
+
 
 func (cam *Camera) grabFrameRGB565(mat gocv.Mat) ([]byte, error) {
     rgb565Data, err := matToRGB565(&mat)

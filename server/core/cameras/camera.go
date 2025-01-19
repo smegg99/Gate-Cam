@@ -36,7 +36,7 @@ type Camera struct {
 	running     bool
 	config      config.CameraConfig
 	detections  []Entity
-	// detectionMu sync.Mutex
+	detectionMu sync.Mutex
 	net         gocv.Net
 	outputs	    map[config.CameraMode]CameraModeOutput
 }
@@ -45,7 +45,6 @@ func NewCamera(camConfig config.CameraConfig) (*Camera, error) {
     var cap *gocv.VideoCapture
     var err error
 
-    // Skip opening the physical camera if IsDisplay is true
     if !camConfig.IsDisplay {
         cap, err = gocv.OpenVideoCapture(camConfig.Device)
         if err != nil {
@@ -58,9 +57,6 @@ func NewCamera(camConfig config.CameraConfig) (*Camera, error) {
         if camConfig.FrameHeight > 0 {
             cap.Set(gocv.VideoCaptureFrameHeight, float64(camConfig.FrameHeight))
         }
-    } else {
-        // If capturing the screen, we do nothing here.
-        // The capture device remains nil. That’s intentional.
     }
 
     net := gocv.ReadNetFromCaffe(os.Getenv("MOBILENET_PROTOTXT"), os.Getenv("MOBILENET_MODEL"))
@@ -94,35 +90,35 @@ func (cam *Camera) GetAccessKey() string {
 	return os.Getenv(cam.config.AccessKeyEnv)
 }
 
-func (cam *Camera) grabScreenMat() (gocv.Mat, error) {
+func (cam *Camera) grabScreenMat() (*gocv.Mat, error) {
 	displayIndex := cam.config.DisplayIndex
 	bounds := screenshot.GetDisplayBounds(displayIndex)
 	if bounds.Empty() {
-		return gocv.NewMat(), fmt.Errorf("invalid display bounds for index %d", displayIndex)
+		return nil, fmt.Errorf("invalid display bounds for index %d", displayIndex)
 	}
 
 	img, err := screenshot.CaptureRect(bounds)
 	if err != nil {
-		return gocv.NewMat(), fmt.Errorf("failed to capture display %d: %v", displayIndex, err)
+		return nil, fmt.Errorf("failed to capture display %d: %v", displayIndex, err)
 	}
 
 	matRGB, err := gocv.ImageToMatRGB(img)
 	if err != nil { 
-		return gocv.NewMat(), fmt.Errorf("failed to convert screenshot to Mat: %v", err)
+		return nil, fmt.Errorf("failed to convert screenshot to Mat: %v", err)
 	}
 	defer matRGB.Close()
 
 	matBGR := gocv.NewMat()
 	gocv.CvtColor(matRGB, &matBGR, gocv.ColorRGBToBGR)
 
-	return matBGR, nil
+	return &matBGR, nil
 }
 
 func (cam *Camera) grabFrame(mode config.CameraMode) ([]byte, error) {
 	cam.mu.Lock()
 	defer cam.mu.Unlock()
 
-	var mat gocv.Mat
+	var mat *gocv.Mat
 	var err error
 
 	if cam.config.IsDisplay {
@@ -138,8 +134,9 @@ func (cam *Camera) grabFrame(mode config.CameraMode) ([]byte, error) {
 			return nil, nil
 		}
 
-		mat = gocv.NewMat()
-		if !cam.capture.Read(&mat) || mat.Empty() {
+		tmpMat := gocv.NewMat()
+		mat = &tmpMat
+		if !cam.capture.Read(mat) || mat.Empty() {
 			fmt.Printf("camera %s failed to read frame\n", cam.Name)
 			return nil, nil
 		}
@@ -147,23 +144,22 @@ func (cam *Camera) grabFrame(mode config.CameraMode) ([]byte, error) {
 	defer mat.Close()
 
 	modeConfig := cam.config.Modes[mode]
-	mat = cam.applyPostProcessing(mat, modeConfig)
+	cam.applyPostProcessing(mat, modeConfig)
 
-	// TODO: Fix detections causing a memory leak
-	// detections := cam.detectObjects(mat)
-	// cam.detectionMu.Lock()
-	// cam.detections = detections
-	// cam.detectionMu.Unlock()
+	detections := cam.detectObjects(*mat)
+	cam.detectionMu.Lock()
+	cam.detections = detections
+	cam.detectionMu.Unlock()
 
-	// cam.drawDetections(&mat, detections)
+	cam.drawDetections(mat, detections)
 
 	switch mode {
 	case config.ModeGrayscaleFrame:
-		return cam.grabFrameGrayscale(mat)
+		return cam.grabFrameGrayscale(*mat)
 	case config.ModeColorFrame:
-		return cam.grabFrameRGB565(mat)
+		return cam.grabFrameRGB565(*mat)
 	case config.ModeJPEGStream:
-		return cam.grabFrameJPEG(mat, modeConfig)
+		return cam.grabFrameJPEG(*mat, modeConfig)
 	default:
 		return nil, fmt.Errorf("unsupported camera mode: %s", mode)
 	}
@@ -284,4 +280,6 @@ func (cam *Camera) Stop() {
 		cam.capture.Close()
 		cam.capture = nil
 	}
+
+	cam.net.Close()
 }

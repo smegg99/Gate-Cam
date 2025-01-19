@@ -26,8 +26,7 @@ func (mcs *MultiCamServer) AddCamera(cam *Camera) {
 func (mcs *MultiCamServer) GetCamera(id string) (*Camera, bool) {
     mcs.mu.RLock()
     defer mcs.mu.RUnlock()
-    
-    // Check if the ID can be converted to a uint
+
     if camID, err := strconv.ParseUint(id, 10, 64); err == nil {
         for _, cam := range mcs.cameras {
             if uint64(cam.Order) == camID {
