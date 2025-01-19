@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"smuggr.xyz/gate-cam/api/v1/routes"
-	"smuggr.xyz/gate-cam/common/config"
+	"smuggr.xyz/gatecam/api/v1/routes"
+	"smuggr.xyz/gatecam/common/config"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,7 +36,7 @@ func Initialize() chan error {
 	}))
 
 	ExternalRouter.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:2137", "http://localhost:2138", "http://gatecam.smuggr.xyz", "https://gatecam.smuggr.xyz"},
+		AllowOrigins:     []string{"http://localhost:2137", "http://localhost:2138", "https://gatecam.smuggr.xyz"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "X-Auth-Token"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -47,14 +47,13 @@ func Initialize() chan error {
 
 	errCh := make(chan error)
 	go func() {
-		// err := DefaultRouter.RunTLS(":" + strconv.Itoa(int(Config.Port)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
 		err := DefaultRouter.Run(":" + strconv.Itoa(int(Config.Port)))
 		errCh <- err
 	}()
 
 	extErrCh := make(chan error)
 	go func() {
-		err := ExternalRouter.Run(":" + strconv.Itoa(int(Config.ExternalPort)))
+		err := DefaultRouter.RunTLS(":" + strconv.Itoa(int(Config.ExternalPort)), os.Getenv("TLS_CERT"), os.Getenv("TLS_KEY"))
 		extErrCh <- err
 	}()
 

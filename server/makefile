@@ -11,7 +11,7 @@ DIST_DIR := $(CURRENT_BUILD_DIR)/dist
 
 DEPLOY_HOST ?= razul-server.local
 DEPLOY_USER ?= gatecam
-DEPLOY_DIR ?= ~/$(PROJECT_NAME)
+DEPLOY_DIR ?= ~/
 DEPLOY_SERVICE_NAME ?= gatecam.service
 
 VERSION := $(shell grep '^VERSION=' $(PROJECT_ROOT)/.env | cut -d '=' -f 2)
@@ -19,14 +19,16 @@ ARCHS := amd64 arm
 OS := linux
 
 .PHONY: all
-all: build build-web-install
+all: build
 
 .PHONY: build
 build: | $(CURRENT_BUILD_DIR)
 	@echo "Building backend..."
-	@CGO_ENABLED=0 GOOS=$(OS) GOARCH=amd64 go build -a -installsuffix cgo -o $(CURRENT_BUILD_DIR)/$(BINARY_NAME) $(BACKEND_SOURCE_DIR)
+	@CGO_ENABLED=1 GOOS=$(OS) GOARCH=amd64 go build -o $(CURRENT_BUILD_DIR)/$(BINARY_NAME) $(BACKEND_SOURCE_DIR)
 	@cp -r $(BACKEND_SOURCE_DIR)/config.json $(CURRENT_BUILD_DIR)/config.json
 	@cp -r $(BACKEND_SOURCE_DIR)/.env $(CURRENT_BUILD_DIR)/.env
+	@cp -r $(BACKEND_SOURCE_DIR)/deploy.prototxt $(CURRENT_BUILD_DIR)/deploy.prototxt
+	@cp -r $(BACKEND_SOURCE_DIR)/mobilenet_iter_73000.caffemodel $(CURRENT_BUILD_DIR)/mobilenet_iter_73000.caffemodel
 
 .PHONY: package
 package: all
@@ -36,7 +38,7 @@ package: all
 		echo "Building for $$arch..."; \
 		TEMP_DIR=$(BUILD_DIR)/temp_$$arch; \
 		mkdir -p $$TEMP_DIR/Gatecam; \
-		GOOS=$(OS) GOARCH=$$arch CGO_ENABLED=0 go build -a -installsuffix cgo -o $$TEMP_DIR/Gatecam/$(BINARY_NAME) $(BACKEND_SOURCE_DIR); \
+		GOOS=$(OS) GOARCH=$$arch CGO_ENABLED=1 go build -o $$TEMP_DIR/Gatecam/$(BINARY_NAME) $(BACKEND_SOURCE_DIR); \
 		cp -r $(CURRENT_BUILD_DIR)/config.json $$TEMP_DIR/Gatecam/config.json; \
 		echo "Creating archive $$BUILD_ARCHIVE..."; \
 		tar -czvf $$BUILD_ARCHIVE -C $$TEMP_DIR Gatecam; \
@@ -77,7 +79,7 @@ clean-tarballs:
 .PHONY: deploy
 deploy: all
 	@echo "Deploying to $(DEPLOY_HOST)..."
-	@rsync -avz --delete $(BUILD_DIR)/$(PROJECT_NAME) $(DEPLOY_USER)@$(DEPLOY_HOST):$(DEPLOY_DIR)
+	@rsync -avz --	 $(BUILD_DIR)/$(PROJECT_NAME) $(DEPLOY_USER)@$(DEPLOY_HOST):$(DEPLOY_DIR)
 	@ssh -t $(DEPLOY_USER)@$(DEPLOY_HOST) 'sudo systemctl restart $(DEPLOY_SERVICE_NAME) && sudo systemctl reload nginx'
 	@echo "Deployment complete."
 

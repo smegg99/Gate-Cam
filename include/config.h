@@ -9,7 +9,8 @@
 
 // A lighter way to conserve power, but not as deep as deep sleep,
 // tells the ESP32 to go into light sleep mode and pushes a black screen
-#define ENABLE_REST
+// NOTE: When using this, remember to wake the device up with the encoder so the API can be called
+//#define ENABLE_REST
 //#define DISABLE_NETWORKING // Used for testing the sleeping functionality
 
 #ifdef ENABLE_SERIAL

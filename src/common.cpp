@@ -1,7 +1,7 @@
 #include "common.h"
 #include "config.h"
 
-const char* API_HOST = "192.168.1.42";
+const char* API_HOST = "192.168.1.50";
 const int API_PORT = 2138;
 
 #ifdef ENABLE_OTA

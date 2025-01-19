@@ -1,4 +1,4 @@
-module smuggr.xyz/gate-cam
+module smuggr.xyz/gatecam
 
 go 1.23.1
 

@@ -7,9 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	v1 "smuggr.xyz/gate-cam/api/v1"
-	"smuggr.xyz/gate-cam/common/config"
-	"smuggr.xyz/gate-cam/core/cameras"
+	v1 "smuggr.xyz/gatecam/api/v1"
+	"smuggr.xyz/gatecam/common/config"
+	"smuggr.xyz/gatecam/core/cameras"
+	"smuggr.xyz/gatecam/core/devices"
 )
 
 func WaitForTermination() {
@@ -35,6 +36,8 @@ func main() {
 	if err := cameras.Initialize(); err != nil {
 		panic(err)
 	}
+
+	devices.Initialize()
 
 	errCh := v1.Initialize()
 

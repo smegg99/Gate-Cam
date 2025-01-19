@@ -2,9 +2,9 @@
 package cameras
 
 import (
-    "fmt"
+	"fmt"
 
-    "smuggr.xyz/gate-cam/common/config"
+	"smuggr.xyz/gatecam/common/config"
 )
 
 var Config config.GlobalConfig
@@ -40,7 +40,7 @@ func loadCameras() {
 func Initialize() error {
 	fmt.Println("initializing cameras")
 
-    Config = config.Global
+	Config = config.Global
 	Server = NewMultiCamServer()
 
 	loadCameras()

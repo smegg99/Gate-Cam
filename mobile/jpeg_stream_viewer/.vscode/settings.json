@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "/home/karol/Documents/Repositories/Gate-Cam/mobile/jpeg_stream_viewer/linux",
+    "cmake.sourceDirectory": "/home/karol/Documents/Repositories/Gatecam/mobile/jpeg_stream_viewer/linux",
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.diagnosticSeverityOverrides": {

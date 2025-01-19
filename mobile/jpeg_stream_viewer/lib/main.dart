@@ -174,7 +174,7 @@ class _MyAppState extends State<MyApp> {
         '/settings': (context) => SettingsScreen(onLocaleChange: _setLocale),
         '/about': (context) => AboutScreen(
               version: '1.0.0',
-              githubUrl: 'https://github.com/smeggmann99/gate-cam',
+              githubUrl: 'https://github.com/smegg99/gatecam',
             ),
       },
     );

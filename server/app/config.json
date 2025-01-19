@@ -17,21 +17,35 @@
 					"quality": 100,
 					"contrast": 1,
 					"brightness": 1,
-					"saturation": 1
+					"saturation": 1,
+					"rotate": 180,
+					"flip": 2
 				},
 				"grayscale_frame": {
 					"out_frame_width": 160,
 					"out_frame_height": 128,
 					"brightness": 80,
-					"contrast": 1.35
+					"contrast": 1.35,
+					"rotate": 180,
+					"flip": 2
 				},
 				"color_frame": {
 					"out_frame_width": 160,
 					"out_frame_height": 128,
 					"brightness": 80,
-					"contrast": 1.35
+					"contrast": 1.35,
+					"rotate": 180,
+					"flip": 2
 				}
 			}
+		}
+	],
+	"devices": [
+		{
+			"name": "gate",
+			"ip": "192.168.1.17",
+			"port": 80,
+			"access_key_env": "GATE_ACCESS_KEY"
 		}
 	]
 }

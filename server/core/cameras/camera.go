@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-    "smuggr.xyz/gate-cam/common/config"
+	"smuggr.xyz/gatecam/common/config"
 
+	"github.com/kbinani/screenshot"
 	"gocv.io/x/gocv"
-    "github.com/kbinani/screenshot"
 )
 
 type Entity struct {
@@ -22,9 +22,9 @@ type Entity struct {
 }
 
 type CameraModeOutput struct {
-	lastFrame   []byte
-	lastErr     error
-	config      config.CameraModeConfig
+	lastFrame []byte
+	lastErr   error
+	config    config.CameraModeConfig
 }
 
 type Camera struct {
@@ -38,52 +38,52 @@ type Camera struct {
 	detections  []Entity
 	detectionMu sync.Mutex
 	net         gocv.Net
-	outputs	    map[config.CameraMode]CameraModeOutput
+	outputs     map[config.CameraMode]CameraModeOutput
 }
 
 func NewCamera(camConfig config.CameraConfig) (*Camera, error) {
-    var cap *gocv.VideoCapture
-    var err error
+	var cap *gocv.VideoCapture
+	var err error
 
-    if !camConfig.IsDisplay {
-        cap, err = gocv.OpenVideoCapture(camConfig.Device)
-        if err != nil {
-            return nil, fmt.Errorf("error opening camera %d: %v", camConfig.Device, err)
-        }
+	if !camConfig.IsDisplay {
+		cap, err = gocv.OpenVideoCapture(camConfig.Device)
+		if err != nil {
+			return nil, fmt.Errorf("error opening camera %d: %v", camConfig.Device, err)
+		}
 
-        if camConfig.FrameWidth > 0 {
-            cap.Set(gocv.VideoCaptureFrameWidth, float64(camConfig.FrameWidth))
-        }
-        if camConfig.FrameHeight > 0 {
-            cap.Set(gocv.VideoCaptureFrameHeight, float64(camConfig.FrameHeight))
-        }
-    }
+		if camConfig.FrameWidth > 0 {
+			cap.Set(gocv.VideoCaptureFrameWidth, float64(camConfig.FrameWidth))
+		}
+		if camConfig.FrameHeight > 0 {
+			cap.Set(gocv.VideoCaptureFrameHeight, float64(camConfig.FrameHeight))
+		}
+	}
 
-    net := gocv.ReadNetFromCaffe(os.Getenv("MOBILENET_PROTOTXT"), os.Getenv("MOBILENET_MODEL"))
-    if net.Empty() {
-        return nil, fmt.Errorf("error loading MobileNet-SSD model")
-    }
+	net := gocv.ReadNetFromCaffe(os.Getenv("MOBILENET_PROTOTXT"), os.Getenv("MOBILENET_MODEL"))
+	if net.Empty() {
+		return nil, fmt.Errorf("error loading MobileNet-SSD model")
+	}
 
-    outputs := make(map[config.CameraMode]CameraModeOutput)
-    for camMode, mode := range camConfig.Modes {
-        if mode.OutFrameWidth == 0 {
-            mode.OutFrameWidth = camConfig.FrameWidth
-        }
-        if mode.OutFrameHeight == 0 {
-            mode.OutFrameHeight = camConfig.FrameHeight
-        }
-        outputs[camMode] = CameraModeOutput{ config: mode }
-    }
+	outputs := make(map[config.CameraMode]CameraModeOutput)
+	for camMode, mode := range camConfig.Modes {
+		if mode.OutFrameWidth == 0 {
+			mode.OutFrameWidth = camConfig.FrameWidth
+		}
+		if mode.OutFrameHeight == 0 {
+			mode.OutFrameHeight = camConfig.FrameHeight
+		}
+		outputs[camMode] = CameraModeOutput{config: mode}
+	}
 
-    return &Camera{
-        Name:       camConfig.Name,
-        Device:     camConfig.Device,
-        capture:    cap,
-        config:     camConfig,
-        net:        net,
-        detections: []Entity{},
-        outputs:    outputs,
-    }, nil
+	return &Camera{
+		Name:       camConfig.Name,
+		Device:     camConfig.Device,
+		capture:    cap,
+		config:     camConfig,
+		net:        net,
+		detections: []Entity{},
+		outputs:    outputs,
+	}, nil
 }
 
 func (cam *Camera) GetAccessKey() string {
@@ -103,7 +103,7 @@ func (cam *Camera) grabScreenMat() (*gocv.Mat, error) {
 	}
 
 	matRGB, err := gocv.ImageToMatRGB(img)
-	if err != nil { 
+	if err != nil {
 		return nil, fmt.Errorf("failed to convert screenshot to Mat: %v", err)
 	}
 	defer matRGB.Close()

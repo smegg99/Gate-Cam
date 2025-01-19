@@ -10,3 +10,4 @@ server/app/deploy.prototxt
 server/app/mobilenet_iter_73000.caffemodel
 include/secrets.h
 server/.env
+server/build
