@@ -40,6 +40,7 @@ package: all
 		mkdir -p $$TEMP_DIR/Gatecam; \
 		GOOS=$(OS) GOARCH=$$arch CGO_ENABLED=1 go build -o $$TEMP_DIR/Gatecam/$(BINARY_NAME) $(BACKEND_SOURCE_DIR); \
 		cp -r $(CURRENT_BUILD_DIR)/config.json $$TEMP_DIR/Gatecam/config.json; \
+		cp -r $(BACKEND_SOURCE_DIR)/.env.template $$TEMP_DIR/Gatecam/.env; \
 		echo "Creating archive $$BUILD_ARCHIVE..."; \
 		tar -czvf $$BUILD_ARCHIVE -C $$TEMP_DIR Gatecam; \
 		rm -rf $$TEMP_DIR; \
