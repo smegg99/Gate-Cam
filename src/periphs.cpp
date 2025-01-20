@@ -18,6 +18,8 @@ void enterRest() {
 		vTaskSuspend(periphTaskHandle);
 	if (httpServerTaskHandle != NULL)
 		vTaskSuspend(httpServerTaskHandle);
+	if (autoRestartTaskHandle != NULL)
+		vTaskSuspend(autoRestartTaskHandle);
 
 	esp_sleep_enable_ext0_wakeup(static_cast<gpio_num_t>(ENCODER_SWITCH_PIN), 0);
 	esp_light_sleep_start();
@@ -34,6 +36,8 @@ void enterRest() {
 		vTaskResume(periphTaskHandle);
 	if (httpServerTaskHandle != NULL)
 		vTaskResume(httpServerTaskHandle);
+	if (autoRestartTaskHandle != NULL)
+		vTaskResume(autoRestartTaskHandle);
 
 	resetStimulusTime();
 }

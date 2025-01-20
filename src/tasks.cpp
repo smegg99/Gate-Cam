@@ -193,3 +193,26 @@ void powerConservingModeTask(void* parameter) {
 	}
 }
 #endif
+
+#ifdef RESTART_PERIODICALLY
+void autoRestartTask(void* parameter) {
+	while (true) {
+		struct tm timeinfo;
+		if (getLocalTime(&timeinfo)) {
+			char timeStr[64];
+			strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &timeinfo);
+			DEBUG_PRINTF("Current time: %s\n", timeStr);
+
+			if (timeinfo.tm_hour == targetHour && timeinfo.tm_min == targetMinute) {
+				DEBUG_PRINTLN("Target time reached! Performing action...");
+				ESP.restart();
+			}
+		}
+		else {
+			DEBUG_PRINTLN("Failed to get local time");
+		}
+
+		vTaskDelay(60000 / portTICK_PERIOD_MS);
+	}
+}
+#endif

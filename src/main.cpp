@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "time.h"
 #include "config.h"
 #include "common.h"
 #include "display.h"
@@ -66,6 +67,10 @@ void setup() {
 
 #if defined(ENABLE_DEEP_SLEEP) || defined(ENABLE_REST)
   xTaskCreatePinnedToCore(powerConservingModeTask, "Power Conserving Mode Task", 8192, NULL, 1, NULL, 1);
+#endif
+
+#ifdef RESTART_PERIODICALLY
+  xTaskCreatePinnedToCore(autoRestartTask, "Auto Restart Task", 2048, NULL, 1, &autoRestartTaskHandle, 1);
 #endif
 
   encoder.attachHalfQuad(ENCODER_PIN_CLK, ENCODER_PIN_DT);

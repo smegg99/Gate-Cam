@@ -9,4 +9,8 @@ void periphTask(void* parameter);
 void powerConservingModeTask(void* parameter);
 #endif
 
+#ifdef RESTART_PERIODICALLY
+void autoRestartTask(void* parameter);
+#endif
+
 #endif

@@ -36,6 +36,17 @@ TaskHandle_t displayTaskHandle = NULL;
 TaskHandle_t periphTaskHandle = NULL;
 TaskHandle_t httpServerTaskHandle = NULL;
 
+#ifdef RESTART_PERIODICALLY
+TaskHandle_t autoRestartTaskHandle;
+
+// Timezone for Warsaw
+const char* ntpServer = "pl.pool.ntp.org";
+const long gmtOffset_sec = 3600;       // UTC+1
+const int daylightOffset_sec = 3600;   // Daylight saving time
+const int targetHour = 0;
+const int targetMinute = 0;
+#endif
+
 volatile bool displayUpdatePending = false;
 volatile bool cameraIdChanged = false;
 volatile bool frameReady = false;

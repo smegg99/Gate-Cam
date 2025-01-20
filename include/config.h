@@ -13,6 +13,8 @@
 //#define ENABLE_REST
 //#define DISABLE_NETWORKING // Used for testing the sleeping functionality
 
+#define RESTART_PERIODICALLY // Used to counteract memory leaks which may occur over time due to my poor programming skills
+
 #ifdef ENABLE_SERIAL
 #define DEBUG_PRINT(x)    Serial.print(x)
 #define DEBUG_PRINTLN(x)  Serial.println(x)

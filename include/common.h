@@ -52,6 +52,16 @@ extern TaskHandle_t displayTaskHandle;
 extern TaskHandle_t periphTaskHandle;
 extern TaskHandle_t httpServerTaskHandle;
 
+#ifdef RESTART_PERIODICALLY
+extern TaskHandle_t autoRestartTaskHandle;
+
+extern const char* ntpServer;
+extern const long gmtOffset_sec;
+extern const int daylightOffset_sec;
+extern const int targetHour;
+extern const int targetMinute;
+#endif
+
 extern volatile bool displayUpdatePending;
 extern volatile bool cameraIdChanged;
 extern volatile bool frameReady;

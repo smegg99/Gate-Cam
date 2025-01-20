@@ -92,6 +92,31 @@ void connectToWiFi() {
 
 	tft.setTextColor(TFT_WHITE, TFT_BLACK);
 	tft.println(WiFi.localIP());
+
+#ifdef RESTART_PERIODICALLY
+	configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
+	struct tm timeinfo;
+	if (!getLocalTime(&timeinfo)) {
+		DEBUG_PRINTLN("Failed to obtain time");
+		tft.setTextColor(TFT_RED, TFT_BLACK);
+		tft.println("Failed to obtain time from NTP");
+		return;
+	}
+	DEBUG_PRINTLN("Time synchronized with NTP");
+
+	tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+	tft.println("Current time:");
+
+	char timeStr[64];
+	strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", &timeinfo);
+	DEBUG_PRINTF("Current time: %s\n", timeStr);
+
+	tft.setTextColor(TFT_WHITE, TFT_BLACK);
+	tft.println(timeStr);
+
+#endif
+
 #endif
 
 	// Sadly, I didn't manage to setup OTA to work reliably with this exact
