@@ -23,7 +23,10 @@
 				"save": "Zapisz",
 				"add_action": "Dodaj Akcję",
 				"cancel": "Anuluj",
-				"delete": "Usuń"
+				"delete": "Usuń",
+				"open": "Otwórz",
+				"export": "Eksportuj",
+				"proceed": "Kontynuuj"
 			},
 			"labels": {
 				"actions": "Akcje",
@@ -31,11 +34,21 @@
 				"delete_selected_confirmation": "Czy na pewno chcesz usunąć {amount} elementów?",
 				"selected": "Wybrano {amount}",
 				"connection_name": "Nazwa",
+				"unnamed_connection": "Połączenie Bez Nazwy",
 				"endpoint": "Punkt Końcowy",
 				"username": "Nazwa Użytkownika",
 				"password": "Hasło",
 				"please_fill_all_fields": "Proszę wypełnić wszystkie pola",
-				"no_actions_available": "Brak dostępnych akcji"
+				"please_fill_needed_fields": "Proszę wypełnić potrzebne pola",
+				"no_actions_available": "Brak dostępnych akcji",
+				"failed_to_load_file": "Nie udało się załadować pliku!",
+				"failed_to_export_file": "Nie udało się wyeksportować pliku!",
+				"file_loaded": "Plik załadowany!",
+				"file_exported_to": "Plik wyeksportowany: {path}",
+				"export_current_data": "Eksportuj bieżące dane",
+				"load_data_from_file": "Załaduj dane z pliku",
+				"import_overwrite_confirmation": "Czy na pewno chcesz nadpisać bieżące dane?",
+				"export_secrets_confirmation": "Czy na pewno chcesz wyeksportować bieżące dane? Sekrety RÓWNIEŻ zostaną uwzględnione w pliku!"
 			}
 		},
 		"action_edit": {
@@ -55,7 +68,9 @@
 				"header_value": "Wartość",
 				"no_headers_available": "Brak dostępnych nagłówków",
 				"new_header": "Nowy Nagłówek {index}",
-				"body": "Treść"
+				"body": "Treść",
+				"please_fill_all_fields": "Proszę wypełnić wszystkie pola",
+				"please_fill_needed_fields": "Proszę wypełnić potrzebne pola"
 			}
 		},
 		"connection": {
@@ -76,7 +91,7 @@
 				"connected_to": "Połączono z {name}",
 				"failed_to_capture_snapshot": "Nie udało się zrobić zrzutu ekranu!",
 				"failed_to_save_snapshot": "Nie udało się zapisać zrzutu ekranu!",
-				"captured_snapshot": "Zrobiono zrzut ekranu!",
+				"captured_snapshot": "Zrobiono zrzut ekranu: {path}",
 				"action_executed_successfully": "Akcja {name} wykonana pomyślnie!",
 				"action_error": "Błąd: {error}"
 			}

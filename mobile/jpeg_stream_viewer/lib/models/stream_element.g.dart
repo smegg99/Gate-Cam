@@ -18,26 +18,29 @@ class StreamElementAdapter extends TypeAdapter<StreamElement> {
     };
     return StreamElement(
       name: fields[0] as String,
-      url: fields[1] as String,
-      username: fields[2] as String,
-      password: fields[3] as String,
-      actions: (fields[4] as List?)?.cast<ActionElement>(),
+      order: fields[1] as int,
+      url: fields[2] as String,
+      username: fields[3] as String,
+      password: fields[4] as String,
+      actions: (fields[5] as List?)?.cast<ActionElement>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, StreamElement obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.url)
+      ..write(obj.order)
       ..writeByte(2)
-      ..write(obj.username)
+      ..write(obj.url)
       ..writeByte(3)
-      ..write(obj.password)
+      ..write(obj.username)
       ..writeByte(4)
+      ..write(obj.password)
+      ..writeByte(5)
       ..write(obj.actions);
   }
 
@@ -64,11 +67,12 @@ class ActionElementAdapter extends TypeAdapter<ActionElement> {
     };
     return ActionElement(
       name: fields[0] as String,
-      icon: fields[1] as String,
+      order: fields[1] as int,
       endpoint: fields[2] as String,
       method: fields[3] as String,
       headers: (fields[4] as Map).cast<String, String>(),
-    )..body = fields[5] as String?;
+      body: fields[5] as String?,
+    );
   }
 
   @override
@@ -78,7 +82,7 @@ class ActionElementAdapter extends TypeAdapter<ActionElement> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.icon)
+      ..write(obj.order)
       ..writeByte(2)
       ..write(obj.endpoint)
       ..writeByte(3)

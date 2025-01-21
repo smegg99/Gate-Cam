@@ -1,5 +1,6 @@
 // lib/widgets/stream_list_item.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jpegsv/models/stream_element.dart';
 
 class StreamListItem extends StatefulWidget {
@@ -61,8 +62,13 @@ class _StreamListItemState extends State<StreamListItem> {
               ),
             ),
             if (widget.isSelectionMode)
-              Checkbox(
-                  value: widget.isSelected, onChanged: widget.onCheckboxChanged)
+              Row(
+                children: [
+                  Checkbox(
+                      value: widget.isSelected,
+                      onChanged: widget.onCheckboxChanged),
+                ],
+              )
             else
               Row(
                 children: [
@@ -73,6 +79,14 @@ class _StreamListItemState extends State<StreamListItem> {
                   IconButton(
                     icon: Icon(Icons.link, color: theme.colorScheme.secondary),
                     onPressed: widget.onConnect,
+                  ),
+                  ReorderableDragStartListener(
+                    index: widget.element.order,
+                    child: GestureDetector(
+                      onTapDown: (_) => HapticFeedback.lightImpact(),
+                      child: Icon(Icons.drag_indicator,
+                          color: theme.colorScheme.tertiary),
+                    ),
                   ),
                 ],
               ),

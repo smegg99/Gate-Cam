@@ -278,6 +278,16 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       final file = File(filePath);
       await file.writeAsBytes(imageBytes);
       print('Snapshot saved to $filePath');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localizations.translateWithParams(
+                'screens.connection.labels.captured_snapshot',
+                {'path': filePath})),
+          ),
+        );
+      }
     } catch (e) {
       print('Error saving image: $e');
       if (mounted) {
@@ -313,14 +323,6 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       if (byteData != null && mounted) {
         Uint8List streamFrame = byteData.buffer.asUint8List();
         await _saveImage(streamFrame);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(localizations
-                    .translate('screens.connection.labels.captured_snapshot'))),
-          );
-        }
       }
     } catch (e) {
       if (mounted) {

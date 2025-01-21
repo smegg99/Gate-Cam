@@ -1,4 +1,3 @@
-// lib/screens/main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -108,27 +107,21 @@ class _MainScreenState extends State<MainScreen> {
             : localizations.translate('screens.home.title')),
         actions: _isSelectionMode
             ? [
-                Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () async {
-                      final box = Hive.box<StreamElement>('stream_elements');
-                      await _deleteSelectedItems(box);
-                    },
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    final box = Hive.box<StreamElement>('stream_elements');
+                    await _deleteSelectedItems(box);
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      setState(() {
-                        _isSelectionMode = false;
-                        _selectedIndices.clear();
-                      });
-                    },
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    setState(() {
+                      _isSelectionMode = false;
+                      _selectedIndices.clear();
+                    });
+                  },
                 ),
               ]
             : null,
@@ -138,6 +131,7 @@ class _MainScreenState extends State<MainScreen> {
             Hive.box<StreamElement>('stream_elements').listenable(),
         builder: (context, box, _) {
           final elements = box.values.toList().cast<StreamElement>();
+          elements.sort((a, b) => a.order.compareTo(b.order));
 
           if (elements.isEmpty) {
             return Center(
@@ -145,7 +139,7 @@ class _MainScreenState extends State<MainScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.image_not_supported, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(localizations
                       .translate('screens.home.labels.no_connections')),
                 ],
@@ -153,32 +147,47 @@ class _MainScreenState extends State<MainScreen> {
             );
           }
 
-          return ListView.builder(
-            padding:
-                const EdgeInsets.only(left: 8, right: 8, top: 16, bottom: 84),
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: elements.length,
-            itemBuilder: (context, index) {
-              final element = elements[index];
-              final isSelected = _selectedIndices.contains(index);
+          return ReorderableListView(
+            buildDefaultDragHandles: false,
+            onReorder: (oldIndex, newIndex) async {
+              setState(() {
+                if (newIndex > oldIndex) newIndex--;
+                final element = elements.removeAt(oldIndex);
+                elements.insert(newIndex, element);
 
-              return StreamListItem(
-                element: element,
-                isSelected: isSelected,
-                isSelectionMode: _isSelectionMode,
-                onTap: () => {
-                  if (_isSelectionMode)
-                    _toggleSelectItem(index)
-                  else
-                    _handleConnect(element)
-                },
-                onEdit: () => _handleEdit(element),
-                onConnect: () => _handleConnect(element),
-                onLongPress: () => _toggleSelectionMode(index),
-                onCheckboxChanged: (value) => _toggleSelectItem(index),
-              );
+                // Update order in memory
+                for (int i = 0; i < elements.length; i++) {
+                  elements[i].order = i;
+                }
+              });
+
+              // Persist updated order to Hive after reordering
+              Future.delayed(const Duration(milliseconds: 300), () async {
+                for (final element in elements) {
+                  await element.save();
+                }
+              });
             },
+            children: List.generate(
+              elements.length,
+              (index) {
+                final element = elements[index];
+                final isSelected = _selectedIndices.contains(index);
+
+                return StreamListItem(
+                  key: ValueKey(
+                      element.key ?? element.name ?? index), // Unique key
+                  element: element,
+                  isSelected: isSelected,
+                  isSelectionMode: _isSelectionMode,
+                  onTap: () => {if (_isSelectionMode) _toggleSelectItem(index)},
+                  onEdit: () => _handleEdit(element),
+                  onConnect: () => _handleConnect(element),
+                  onLongPress: () => _toggleSelectionMode(index),
+                  onCheckboxChanged: (value) => _toggleSelectItem(index),
+                );
+              },
+            ),
           );
         },
       ),

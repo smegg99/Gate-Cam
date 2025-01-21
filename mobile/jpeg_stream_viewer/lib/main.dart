@@ -165,6 +165,7 @@ class _MyAppState extends State<MyApp> {
         '/edit': (context) => ConnectionEditScreen(
               element:
                   ModalRoute.of(context)!.settings.arguments as StreamElement?,
+              appDirectory: widget.appDirectory,
             ),
         '/connect': (context) => ConnectionScreen(
               element:
@@ -173,7 +174,7 @@ class _MyAppState extends State<MyApp> {
             ),
         '/settings': (context) => SettingsScreen(onLocaleChange: _setLocale),
         '/about': (context) => AboutScreen(
-              version: '1.0.0',
+              version: '1.0.1',
               githubUrl: 'https://github.com/smegg99/gatecam',
             ),
       },

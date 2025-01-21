@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jpegsv/localization/localization.dart';
 import 'package:jpegsv/models/stream_element.dart';
 
@@ -63,12 +64,28 @@ class _ActionListItemState extends State<ActionListItem> {
               ),
             ),
             if (widget.isSelectionMode)
-              Checkbox(
-                  value: widget.isSelected, onChanged: widget.onCheckboxChanged)
+              Row(
+                children: [
+                  Checkbox(
+                      value: widget.isSelected, onChanged: widget.onCheckboxChanged),
+                ],
+              )
             else
-              IconButton(
-                icon: Icon(Icons.edit, color: theme.colorScheme.primary),
-                onPressed: widget.onEdit,
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit, color: theme.colorScheme.primary),
+                    onPressed: widget.onEdit,
+                  ),
+                  ReorderableDragStartListener(
+                    index: widget.action.order,
+                    child: GestureDetector(
+                      onTapDown: (_) => HapticFeedback.lightImpact(),
+                      child: Icon(Icons.drag_indicator,
+                          color: theme.colorScheme.tertiary),
+                    ),
+                  ),
+                ],
               ),
           ],
         ),

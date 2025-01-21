@@ -15,7 +15,6 @@ class ActionEditScreen extends StatefulWidget {
 class _ActionEditScreenState extends State<ActionEditScreen> {
   late TextEditingController _nameController;
   late TextEditingController _endpointController;
-  late TextEditingController _iconController;
   late TextEditingController _bodyController;
   late String _method;
   late Map<String, TextEditingController> _keyControllers;
@@ -31,7 +30,6 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.action.name);
     _endpointController = TextEditingController(text: widget.action.endpoint);
-    _iconController = TextEditingController(text: widget.action.icon);
     _bodyController = TextEditingController(
         text: widget.action.body ?? '');
     _method = widget.action.method;
@@ -48,7 +46,6 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
   void dispose() {
     _nameController.dispose();
     _endpointController.dispose();
-    _iconController.dispose();
     _bodyController.dispose();
     for (var controller in _keyControllers.values) {
       controller.dispose();
@@ -71,9 +68,19 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
   }
 
   void _saveChanges() {
+    if (_nameController.text.isEmpty ||
+      _endpointController.text.isEmpty ||
+      _method.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(localizations.translate(
+          'screens.action_edit.labels.please_fill_needed_fields'))),
+      );
+      return;
+    }
+
     widget.action.name = _nameController.text;
     widget.action.endpoint = _endpointController.text;
-    widget.action.icon = _iconController.text;
     widget.action.body = _bodyController.text;
     widget.action.method = _method;
 
@@ -130,8 +137,7 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
             child: TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: localizations
-                    .translate('screens.action_edit.labels.action_name'),
+                labelText: '${localizations.translate('screens.action_edit.labels.action_name')} *',
               ),
             ),
           ),
@@ -140,8 +146,7 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
             child: TextField(
               controller: _endpointController,
               decoration: InputDecoration(
-                labelText: localizations
-                    .translate('screens.action_edit.labels.endpoint'),
+                labelText: '${localizations.translate('screens.action_edit.labels.endpoint')} *',
               ),
             ),
           ),
@@ -153,8 +158,7 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
                   child: DropdownMenu<String>(
                     initialSelection: _method,
                     label: Text(
-                      localizations
-                          .translate('screens.action_edit.labels.method'),
+                      '${localizations.translate('screens.action_edit.labels.method')} *',
                     ),
                     dropdownMenuEntries:
                         ['GET', 'POST', 'PUT', 'DELETE'].map((method) {
@@ -172,16 +176,16 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
                     },
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextField(
-                    controller: _iconController,
-                    decoration: InputDecoration(
-                      labelText: localizations
-                          .translate('screens.action_edit.labels.icon'),
-                    ),
-                  ),
-                ),
+                // const SizedBox(width: 16),
+                // Expanded(
+                //   child: TextField(
+                //     controller: _iconController,
+                //     decoration: InputDecoration(
+                //       labelText: localizations
+                //           .translate('screens.action_edit.labels.icon'),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
