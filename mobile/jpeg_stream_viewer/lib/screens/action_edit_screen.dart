@@ -30,8 +30,7 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.action.name);
     _endpointController = TextEditingController(text: widget.action.endpoint);
-    _bodyController = TextEditingController(
-        text: widget.action.body ?? '');
+    _bodyController = TextEditingController(text: widget.action.body ?? '');
     _method = widget.action.method;
 
     _keyControllers = {};
@@ -69,12 +68,12 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
 
   void _saveChanges() {
     if (_nameController.text.isEmpty ||
-      _endpointController.text.isEmpty ||
-      _method.isEmpty) {
+        _endpointController.text.isEmpty ||
+        _method.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(localizations.translate(
-          'screens.action_edit.labels.please_fill_needed_fields'))),
+        SnackBar(
+            content: Text(localizations.translate(
+                'screens.action_edit.labels.please_fill_needed_fields'))),
       );
       return;
     }
@@ -137,7 +136,8 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
             child: TextField(
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: '${localizations.translate('screens.action_edit.labels.action_name')} *',
+                labelText:
+                    '${localizations.translate('screens.action_edit.labels.action_name')} *',
               ),
             ),
           ),
@@ -146,7 +146,8 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
             child: TextField(
               controller: _endpointController,
               decoration: InputDecoration(
-                labelText: '${localizations.translate('screens.action_edit.labels.endpoint')} *',
+                labelText:
+                    '${localizations.translate('screens.action_edit.labels.endpoint')} *',
               ),
             ),
           ),
@@ -176,16 +177,22 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
                     },
                   ),
                 ),
-                // const SizedBox(width: 16),
-                // Expanded(
-                //   child: TextField(
-                //     controller: _iconController,
-                //     decoration: InputDecoration(
-                //       labelText: localizations
-                //           .translate('screens.action_edit.labels.icon'),
-                //     ),
-                //   ),
-                // ),
+                const SizedBox(width: 16),
+                Row(
+                  children: [
+                    Text(localizations.translate(
+                        'screens.action_edit.labels.copy_basic_auth')),
+                    const SizedBox(width: 8),
+                    Switch(
+                      value: widget.action.copyBasicAuth,
+                      onChanged: (value) {
+                        setState(() {
+                          widget.action.copyBasicAuth = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -231,7 +238,10 @@ class _ActionEditScreenState extends State<ActionEditScreen> {
               itemCount: _keyControllers.keys.length,
               itemBuilder: (context, index) {
                 final key = _keyControllers.keys.elementAt(index);
-                return _buildHeaderEntry(key);
+                return SizedBox(
+                  width: double.infinity, // Ensure it takes the full width
+                  child: _buildHeaderEntry(key),
+                );
               },
             ),
           ],

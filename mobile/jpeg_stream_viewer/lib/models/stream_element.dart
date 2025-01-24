@@ -79,6 +79,9 @@ class ActionElement {
   @HiveField(5)
   String? body;
 
+  @HiveField(6)
+  bool copyBasicAuth;
+
   ActionElement({
     required this.name,
     required this.order,
@@ -86,6 +89,7 @@ class ActionElement {
     required this.method,
     this.headers = const {},
     this.body,
+    this.copyBasicAuth = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -96,6 +100,7 @@ class ActionElement {
       'method': method,
       'headers': headers,
       'body': body,
+      'copyBasicAuth': copyBasicAuth,
     };
   }
 
@@ -107,6 +112,7 @@ class ActionElement {
       method: json['method'],
       headers: Map<String, String>.from(json['headers']),
       body: json['body'],
+      copyBasicAuth: json['copyBasicAuth'] ?? false,
     );
   }
 }

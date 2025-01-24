@@ -51,8 +51,8 @@ class _ConnectionScreenState extends State<ConnectionScreen>
     super.initState();
     streamUrl = widget.element.url;
     headers = {
-      'Authorization':
-          'Basic ${base64Encode(utf8.encode('${widget.element.username}:${widget.element.password}'))}',
+      'Authorization': _constructBasicAuthHeader(
+          widget.element.username, widget.element.password),
     };
     _initializeStream();
 
@@ -68,6 +68,10 @@ class _ConnectionScreenState extends State<ConnectionScreen>
     _transformationController.dispose();
     _resetAnimationController.dispose();
     super.dispose();
+  }
+
+  String _constructBasicAuthHeader(String username, String password) {
+    return 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
   }
 
   void _performAction(ActionElement action) {
@@ -86,6 +90,15 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                 try {
                   final request = await HttpClient()
                       .openUrl(action.method, Uri.parse(action.endpoint));
+
+                  if (action.copyBasicAuth) {
+                    request.headers.add(
+                        'Authorization',
+                        _constructBasicAuthHeader(
+                          widget.element.username,
+                          widget.element.password,
+                        ));
+                  }
 
                   action.headers.forEach((key, value) {
                     request.headers.add(key, value);

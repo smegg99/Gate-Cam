@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jpegsv/localization/localization.dart';
+import 'package:jpegsv/common/common.dart';
 
 class HeaderListItem extends StatefulWidget {
   final TextEditingController keyController;
@@ -23,6 +24,28 @@ class _HeaderListItemState extends State<HeaderListItem> {
   AppLocalizations get localizations => AppLocalizations.of(context);
 
   @override
+  void initState() {
+    super.initState();
+    widget.keyController.addListener(_handleKeyChanged);
+    widget.valueController.addListener(_handleValueChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.keyController.removeListener(_handleKeyChanged);
+    widget.valueController.removeListener(_handleValueChanged);
+    super.dispose();
+  }
+
+  void _handleKeyChanged() {
+    widget.onChanged();
+  }
+
+  void _handleValueChanged() {
+    widget.onChanged();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -31,32 +54,69 @@ class _HeaderListItemState extends State<HeaderListItem> {
       child: Row(
         children: [
           Expanded(
-            flex: 1,
             child: TextField(
               controller: widget.keyController,
               decoration: InputDecoration(
-                labelText: localizations
-                    .translate('screens.action_edit.labels.header_key'),
+                labelText: localizations.translate(
+                  'screens.action_edit.labels.header_key',
+                ),
+                suffixIcon: PopupMenuButton<String>(
+                  icon: const Icon(Icons.arrow_drop_down),
+                  onSelected: (value) {
+                    setState(() {
+                      widget.keyController.text = value;
+                      widget.onChanged();
+                    });
+                  },
+                  itemBuilder: (context) {
+                    return predefinedHeaderKeys.map((key) {
+                      return PopupMenuItem<String>(
+                        value: key,
+                        child: Text(key),
+                      );
+                    }).toList();
+                  },
+                ),
+                border: const OutlineInputBorder(),
               ),
-              onChanged: (_) => widget.onChanged(),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            flex: 1,
             child: TextField(
               controller: widget.valueController,
               decoration: InputDecoration(
-                labelText: localizations
-                    .translate('screens.action_edit.labels.header_value'),
+                labelText: localizations.translate(
+                  'screens.action_edit.labels.header_value',
+                ),
+                suffixIcon: PopupMenuButton<String>(
+                  icon: const Icon(Icons.arrow_drop_down),
+                  onSelected: (value) {
+                    setState(() {
+                      widget.valueController.text = value;
+                      widget.onChanged();
+                    });
+                  },
+                  itemBuilder: (context) {
+                    return predefinedHeaderValues.map((value) {
+                      return PopupMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList();
+                  },
+                ),
+                border: const OutlineInputBorder(),
               ),
-              onChanged: (_) => widget.onChanged(),
             ),
           ),
           const SizedBox(width: 8),
-          IconButton(
-            icon: Icon(Icons.close, color: theme.colorScheme.error),
-            onPressed: widget.onDelete,
+          SizedBox(
+            width: 40,
+            child: IconButton(
+              icon: Icon(Icons.close, color: theme.colorScheme.error),
+              onPressed: widget.onDelete,
+            ),
           ),
         ],
       ),

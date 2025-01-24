@@ -61,7 +61,7 @@
 				"action_name": "Nazwa Akcji",
 				"unnamed_action": "Akcja Bez Nazwy",
 				"endpoint": "Punkt Końcowy",
-				"method": "Metoda HTTP",
+				"method": "Metoda",
 				"icon": "Ikona",
 				"headers": "Nagłówki",
 				"header_key": "Klucz",
@@ -70,7 +70,8 @@
 				"new_header": "Nowy Nagłówek {index}",
 				"body": "Treść",
 				"please_fill_all_fields": "Proszę wypełnić wszystkie pola",
-				"please_fill_needed_fields": "Proszę wypełnić potrzebne pola"
+				"please_fill_needed_fields": "Proszę wypełnić potrzebne pola",
+				"copy_basic_auth": "Skopiuj autoryzacje"
 			}
 		},
 		"connection": {

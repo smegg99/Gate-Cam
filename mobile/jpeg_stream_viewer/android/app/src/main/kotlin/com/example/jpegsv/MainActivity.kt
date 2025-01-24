@@ -1,4 +1,4 @@
-package com.example.jpegsv
+package xyz.smuggr.jpegsv
 
 import io.flutter.embedding.android.FlutterActivity
 

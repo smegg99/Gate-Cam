@@ -61,7 +61,7 @@
 				"action_name": "Action Name",
 				"unnamed_action": "Unnamed Action",
 				"endpoint": "Endpoint",
-				"method": "HTTP Method",
+				"method": "Method",
 				"icon": "Icon",
 				"headers": "Headers",
 				"header_key": "Key",
@@ -70,7 +70,8 @@
 				"new_header": "New Header {index}",
 				"body": "Body",
 				"please_fill_all_fields": "Please fill all fields",
-				"please_fill_needed_fields": "Please fill needed fields"
+				"please_fill_needed_fields": "Please fill needed fields",
+				"copy_basic_auth": "Copy auth"
 			}
 		},
 		"connection": {
