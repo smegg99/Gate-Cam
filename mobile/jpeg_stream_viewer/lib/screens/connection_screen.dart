@@ -82,6 +82,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       builder: (BuildContext context) {
         bool isLoading = true;
         String? statusMessage;
+        bool wasSuccessful = false;
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
@@ -117,6 +118,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                         'screens.connection.labels.action_executed_successfully',
                         {'name': action.name},
                       );
+                      wasSuccessful = true;
                     });
                   } else {
                     throw Exception(
@@ -129,6 +131,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                       'screens.connection.labels.action_error',
                       {'error': e.toString()},
                     );
+                    wasSuccessful = false;
                   });
                 }
               });
@@ -150,10 +153,10 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                   ],
                   if (!isLoading && statusMessage != null) ...[
                     Icon(
-                      statusMessage!.contains('successfully')
+                      wasSuccessful
                           ? Icons.check_circle_outline
                           : Icons.error_outline,
-                      color: statusMessage!.contains('successfully')
+                      color: wasSuccessful
                           ? theme.colorScheme.primary
                           : theme.colorScheme.error,
                       size: 48,
